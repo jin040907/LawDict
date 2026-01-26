@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Model files and training data
+*.cbm
+catboost_info/
+*.pkl
+*.h5
+*.hdf5
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
