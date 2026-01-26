@@ -217,9 +217,103 @@ def split_expert_report(md_text: str) -> dict:
 
                     val = remove_report_titles(val)
 
-                    md = markdown.Markdown(extensions=['extra', 'nl2br', 'sane_lists', 'tables'])
+                    # social_impact 섹션에서 "분석:" 텍스트가 포함된 줄을 공백으로 변경
+                    if k == 'social_impact':
+                        lines = val.split('\n')
+                        processed_lines = []
+                        for line in lines:
+                            line_stripped = line.strip()
+                            if re.match(r'^분석\s*:?\s*', line_stripped):
+                                # "분석:" 또는 "분석 :" 또는 "분석"으로 시작하는 줄을 공백으로 변경
+                                processed_lines.append('')
+                            else:
+                                processed_lines.append(line)
+                        val = '\n'.join(processed_lines)
 
-                    result[k] = md.convert(val)
+                    # evidence 섹션에서 "해석 요약:" 텍스트가 포함된 줄을 공백으로 변경
+                    if k == 'evidence':
+                        lines = val.split('\n')
+                        processed_lines = []
+                        for line in lines:
+                            line_stripped = line.strip()
+                            if re.match(r'^해석\s+요약\s*:?\s*', line_stripped):
+                                # "해석 요약:" 또는 "해석 요약 :" 또는 "해석 요약"으로 시작하는 줄을 공백으로 변경
+                                processed_lines.append('')
+                            else:
+                                processed_lines.append(line)
+                        val = '\n'.join(processed_lines)
+
+                    # bill_info 섹션에서 "요약:" 텍스트가 포함된 줄을 공백으로 변경
+                    if k == 'bill_info':
+                        lines = val.split('\n')
+                        processed_lines = []
+                        for line in lines:
+                            line_stripped = line.strip()
+                            if re.match(r'^요약\s*:?\s*', line_stripped):
+                                # "요약:" 또는 "요약 :" 또는 "요약"으로 시작하는 줄을 공백으로 변경
+                                processed_lines.append('')
+                            else:
+                                processed_lines.append(line)
+                        val = '\n'.join(processed_lines)
+
+                    md = markdown.Markdown(extensions=['extra', 'nl2br', 'sane_lists', 'tables'])
+                    html_content = md.convert(val)
+
+                    # social_impact 섹션에서 HTML 변환 후에도 "분석:" 텍스트 제거
+                    if k == 'social_impact':
+                        # HTML에서 <p>분석:</p> 또는 <p>분석 :</p> 같은 패턴 제거
+                        html_content = re.sub(r'<p>\s*분석\s*:?\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                        html_content = re.sub(r'<p>\s*분석\s*:?\s*<br\s*/?>\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                        # <strong>분석:</strong> 같은 패턴도 제거
+                        html_content = re.sub(r'<strong>\s*분석\s*:?\s*</strong>\s*', '', html_content, flags=re.IGNORECASE)
+                        # 일반 텍스트로 "분석:"이 포함된 줄 제거
+                        html_content = re.sub(r'<p>\s*분석\s*:?\s*[^<]*</p>\s*', '<p></p>', html_content, flags=re.IGNORECASE)
+
+                    # evidence 섹션에서 HTML 변환 후에도 "해석 요약:" 텍스트 제거
+                    if k == 'evidence':
+                        # HTML에서 <p>해석 요약:</p> 또는 <p>해석 요약 :</p> 같은 패턴 제거
+                        html_content = re.sub(r'<p>\s*해석\s+요약\s*:?\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                        html_content = re.sub(r'<p>\s*해석\s+요약\s*:?\s*<br\s*/?>\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                        # <strong>해석 요약:</strong> 같은 패턴도 제거
+                        html_content = re.sub(r'<strong>\s*해석\s+요약\s*:?\s*</strong>\s*', '', html_content, flags=re.IGNORECASE)
+                        # 일반 텍스트로 "해석 요약:"이 포함된 줄 제거
+                        html_content = re.sub(r'<p>\s*해석\s+요약\s*:?\s*[^<]*</p>\s*', '<p></p>', html_content, flags=re.IGNORECASE)
+
+                    # bill_info 섹션에서 HTML 변환 후에도 "요약:" 텍스트 제거
+                    if k == 'bill_info':
+                        # HTML에서 <p>요약:</p> 또는 <p>요약 :</p> 같은 패턴 제거
+                        html_content = re.sub(r'<p>\s*요약\s*:?\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                        html_content = re.sub(r'<p>\s*요약\s*:?\s*<br\s*/?>\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                        # <strong>요약:</strong> 같은 패턴도 제거
+                        html_content = re.sub(r'<strong>\s*요약\s*:?\s*</strong>\s*', '', html_content, flags=re.IGNORECASE)
+                        # 일반 텍스트로 "요약:"이 포함된 줄 제거
+                        html_content = re.sub(r'<p>\s*요약\s*:?\s*[^<]*</p>\s*', '<p></p>', html_content, flags=re.IGNORECASE)
+
+                    # summary 섹션에서 "신뢰도:" 다음의 볼드 텍스트를 일반 텍스트로 변환
+                    if k == 'summary':
+                        # 패턴 1: <strong>신뢰도: High</strong> 형태를 <strong>신뢰도:</strong> High로 변환
+                        html_content = re.sub(
+                            r'(<strong[^>]*>)(신뢰도\s*:)(\s*)(High|Medium|Low|high|medium|low)(</strong>)',
+                            r'<strong>\2</strong>\3\4',
+                            html_content,
+                            flags=re.IGNORECASE
+                        )
+                        # 패턴 2: 신뢰도: <strong>High</strong> 형태를 <strong>신뢰도:</strong> High로 변환
+                        html_content = re.sub(
+                            r'(신뢰도\s*:\s*)(<strong[^>]*>)(High|Medium|Low|high|medium|low)(</strong>)',
+                            r'<strong>신뢰도:</strong> \3',
+                            html_content,
+                            flags=re.IGNORECASE
+                        )
+                        # 패턴 3: <strong>신뢰도:</strong> <strong>High</strong> 형태를 <strong>신뢰도:</strong> High로 변환
+                        html_content = re.sub(
+                            r'(<strong[^>]*>신뢰도\s*:</strong>\s*)(<strong[^>]*>)(High|Medium|Low|high|medium|low)(</strong>)',
+                            r'\1\3',
+                            html_content,
+                            flags=re.IGNORECASE
+                        )
+
+                    result[k] = html_content
 
                 else:
 
@@ -295,6 +389,27 @@ def split_expert_report(md_text: str) -> dict:
                 for i, line in enumerate(lines):
                     line_stripped = line.strip()
 
+                    # social_impact 섹션(섹션 5)에서 "분석:" 텍스트가 포함된 줄을 공백으로 변경
+                    if section_num == 5 and key_index == 5:  # social_impact 섹션
+                        if re.match(r'^분석\s*:?\s*', line_stripped):
+                            # "분석:" 또는 "분석 :" 또는 "분석"으로 시작하는 줄을 공백으로 변경
+                            processed_lines.append('')
+                            continue
+
+                    # evidence 섹션(섹션 3)에서 "해석 요약:" 텍스트가 포함된 줄을 공백으로 변경
+                    if section_num == 3 and key_index == 3:  # evidence 섹션
+                        if re.match(r'^해석\s+요약\s*:?\s*', line_stripped):
+                            # "해석 요약:" 또는 "해석 요약 :" 또는 "해석 요약"으로 시작하는 줄을 공백으로 변경
+                            processed_lines.append('')
+                            continue
+
+                    # bill_info 섹션(섹션 1)에서 "요약:" 텍스트가 포함된 줄을 공백으로 변경
+                    if section_num == 1 and key_index == 1:  # bill_info 섹션
+                        if re.match(r'^요약\s*:?\s*', line_stripped):
+                            # "요약:" 또는 "요약 :" 또는 "요약"으로 시작하는 줄을 공백으로 변경
+                            processed_lines.append('')
+                            continue
+
                     # 테이블 헤더 패턴 발견 (| 컬럼1 | 컬럼2 | 형식, --- 구분선이 아닌 경우)
                     if re.match(r'^\|\s*.+\s*\|', line_stripped) and not re.match(r'^\|\s*[-:]+', line_stripped):
                         # 이전 줄 확인
@@ -314,6 +429,60 @@ def split_expert_report(md_text: str) -> dict:
                 # 마크다운 확장 명시적으로 로드
                 md = markdown.Markdown(extensions=['extra', 'nl2br', 'sane_lists', 'tables'])
                 html_content = md.convert(section_body_processed)
+
+                # social_impact 섹션에서 HTML 변환 후에도 "분석:" 텍스트 제거
+                if section_num == 5 and key_index == 5:  # social_impact 섹션
+                    # HTML에서 <p>분석:</p> 또는 <p>분석 :</p> 같은 패턴 제거
+                    html_content = re.sub(r'<p>\s*분석\s*:?\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                    html_content = re.sub(r'<p>\s*분석\s*:?\s*<br\s*/?>\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                    # <strong>분석:</strong> 같은 패턴도 제거
+                    html_content = re.sub(r'<strong>\s*분석\s*:?\s*</strong>\s*', '', html_content, flags=re.IGNORECASE)
+                    # 일반 텍스트로 "분석:"이 포함된 줄 제거
+                    html_content = re.sub(r'<p>\s*분석\s*:?\s*[^<]*</p>\s*', '<p></p>', html_content, flags=re.IGNORECASE)
+
+                # evidence 섹션에서 HTML 변환 후에도 "해석 요약:" 텍스트 제거
+                if section_num == 3 and key_index == 3:  # evidence 섹션
+                    # HTML에서 <p>해석 요약:</p> 또는 <p>해석 요약 :</p> 같은 패턴 제거
+                    html_content = re.sub(r'<p>\s*해석\s+요약\s*:?\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                    html_content = re.sub(r'<p>\s*해석\s+요약\s*:?\s*<br\s*/?>\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                    # <strong>해석 요약:</strong> 같은 패턴도 제거
+                    html_content = re.sub(r'<strong>\s*해석\s+요약\s*:?\s*</strong>\s*', '', html_content, flags=re.IGNORECASE)
+                    # 일반 텍스트로 "해석 요약:"이 포함된 줄 제거
+                    html_content = re.sub(r'<p>\s*해석\s+요약\s*:?\s*[^<]*</p>\s*', '<p></p>', html_content, flags=re.IGNORECASE)
+
+                # bill_info 섹션에서 HTML 변환 후에도 "요약:" 텍스트 제거
+                if section_num == 1 and key_index == 1:  # bill_info 섹션
+                    # HTML에서 <p>요약:</p> 또는 <p>요약 :</p> 같은 패턴 제거
+                    html_content = re.sub(r'<p>\s*요약\s*:?\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                    html_content = re.sub(r'<p>\s*요약\s*:?\s*<br\s*/?>\s*</p>\s*', '', html_content, flags=re.IGNORECASE)
+                    # <strong>요약:</strong> 같은 패턴도 제거
+                    html_content = re.sub(r'<strong>\s*요약\s*:?\s*</strong>\s*', '', html_content, flags=re.IGNORECASE)
+                    # 일반 텍스트로 "요약:"이 포함된 줄 제거
+                    html_content = re.sub(r'<p>\s*요약\s*:?\s*[^<]*</p>\s*', '<p></p>', html_content, flags=re.IGNORECASE)
+
+                # summary 섹션에서 "신뢰도:" 다음의 볼드 텍스트를 일반 텍스트로 변환
+                if section_num == 0 and key_index == 0:  # summary 섹션
+                    # 패턴 1: <strong>신뢰도: High</strong> 형태를 <strong>신뢰도:</strong> High로 변환
+                    html_content = re.sub(
+                        r'(<strong[^>]*>)(신뢰도\s*:)(\s*)(High|Medium|Low|high|medium|low)(</strong>)',
+                        r'<strong>\2</strong>\3\4',
+                        html_content,
+                        flags=re.IGNORECASE
+                    )
+                    # 패턴 2: 신뢰도: <strong>High</strong> 형태를 <strong>신뢰도:</strong> High로 변환
+                    html_content = re.sub(
+                        r'(신뢰도\s*:\s*)(<strong[^>]*>)(High|Medium|Low|high|medium|low)(</strong>)',
+                        r'<strong>신뢰도:</strong> \3',
+                        html_content,
+                        flags=re.IGNORECASE
+                    )
+                    # 패턴 3: <strong>신뢰도:</strong> <strong>High</strong> 형태를 <strong>신뢰도:</strong> High로 변환
+                    html_content = re.sub(
+                        r'(<strong[^>]*>신뢰도\s*:</strong>\s*)(<strong[^>]*>)(High|Medium|Low|high|medium|low)(</strong>)',
+                        r'\1\3',
+                        html_content,
+                        flags=re.IGNORECASE
+                    )
 
                 # 디버깅: 섹션 4 (similar_cases)의 경우 테이블 포함 여부 확인
                 if section_num == 4:
@@ -734,11 +903,11 @@ async def bill_detail(request: Request, bill_id: str):
 
                
 
-                # 1. 맨 윗줄에 법안명 볼드체로 추가 (인라인 style로 확실히 적용)
-                bill_name = str(data['bill_name'])
-                from markupsafe import escape
-                bill_name_safe = escape(bill_name)
-                ai_report_html = f'<p><strong class="bill-name-bold" style="font-weight: 700 !important;">{bill_name_safe}</strong></p>\n' + ai_report_html
+                # 1. 맨 윗줄에 법안명 볼드체로 추가 (인라인 style로 확실히 적용) - 제거됨
+                # bill_name = str(data['bill_name'])
+                # from markupsafe import escape
+                # bill_name_safe = escape(bill_name)
+                # ai_report_html = f'<p><strong class="bill-name-bold" style="font-weight: 700 !important;">{bill_name_safe}</strong></p>\n' + ai_report_html
 
                
 

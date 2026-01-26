@@ -675,6 +675,28 @@
 
        
 
+        /* 마지막 요소의 하단 여백 제거 */
+
+        .report-summary-content > *:last-child {
+
+            margin-bottom: 0 !important;
+
+            padding-bottom: 0 !important;
+
+        }
+
+       
+
+        .report-summary-content p:last-child {
+
+            margin-bottom: 0 !important;
+
+            padding-bottom: 0 !important;
+
+        }
+
+       
+
         /* 볼드 처리 제거 - strong, b 태그를 일반 텍스트로 (단, 섹션 제목·법안명은 제외) */
 
         .report-summary-content strong:not(.section-title-bold):not(.bill-name-bold),
@@ -973,11 +995,11 @@
 
                     </div>
 
-                    <div class="bg-white rounded-xl border-2 border-blue-300 shadow-md p-6 mt-8" id="report-summary-text" style="height: fit-content;">
+                    <div class="bg-white rounded-xl border-2 border-blue-300 shadow-md p-6 mt-8" id="report-summary-text" style="height: fit-content; padding-bottom: 1.5rem;">
 
                         {% if ai_report_html and ai_report_html.strip() %}
 
-                        <div class="markdown-body text-slate-800 text-sm leading-relaxed report-summary-content">{{ ai_report_html | safe }}</div>
+                        <div class="markdown-body text-slate-800 text-sm leading-relaxed report-summary-content" style="margin-bottom: 0; padding-bottom: 0;">{{ ai_report_html | safe }}</div>
 
                         {% else %}
 
@@ -1174,6 +1196,45 @@
 
 
     <script>
+
+        // summary 섹션에서 "신뢰도:" 다음의 High/Medium/Low 볼드 해제
+        function unboldReliabilityValue() {
+            const summarySection = document.querySelector('#section1 .markdown-body');
+            if (!summarySection) return;
+
+            // 모든 strong 태그를 확인
+            const allStrongs = summarySection.querySelectorAll('strong');
+            allStrongs.forEach(strong => {
+                const text = strong.textContent.trim();
+                // "신뢰도: High" 형태로 함께 있는 경우
+                const match = text.match(/^(신뢰도\s*:)\s*(High|Medium|Low|high|medium|low)$/i);
+                if (match) {
+                    strong.innerHTML = `<strong>${match[1]}</strong> ${match[2]}`;
+                    return;
+                }
+                // "High", "Medium", "Low"만 있는 경우, 이전 형제가 "신뢰도:"를 포함하는지 확인
+                if (/^(High|Medium|Low|high|medium|low)$/i.test(text)) {
+                    let prev = strong.previousSibling;
+                    while (prev && prev.nodeType !== Node.ELEMENT_NODE) {
+                        prev = prev.previousSibling;
+                    }
+                    if (prev && prev.textContent && prev.textContent.includes('신뢰도:')) {
+                        strong.style.fontWeight = 'normal';
+                    }
+                    // 부모 요소의 이전 형제 확인
+                    const parent = strong.parentElement;
+                    if (parent) {
+                        let parentPrev = parent.previousSibling;
+                        while (parentPrev && parentPrev.nodeType !== Node.ELEMENT_NODE) {
+                            parentPrev = parentPrev.previousSibling;
+                        }
+                        if (parentPrev && parentPrev.textContent && parentPrev.textContent.includes('신뢰도:')) {
+                            strong.style.fontWeight = 'normal';
+                        }
+                    }
+                }
+            });
+        }
 
         // 섹션 제목 볼드 처리 (제안 이유, 주요 내용, 시사점)
 
@@ -1719,6 +1780,12 @@
             setTimeout(boldSectionTitles, 100);
 
             setTimeout(boldSectionTitles, 500);
+
+            // 신뢰도 값 볼드 해제
+
+            setTimeout(unboldReliabilityValue, 100);
+
+            setTimeout(unboldReliabilityValue, 500);
 
         };
 
