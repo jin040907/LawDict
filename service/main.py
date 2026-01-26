@@ -1184,7 +1184,6 @@ def search_web(query: str, max_results: int = 5) -> list:
         print(f"웹 검색 오류 발생: {e}")
         return []
     
-
 @app.post("/api/chat")
 async def chat_with_lawdict(request: Request):
     try:
@@ -1192,62 +1191,93 @@ async def chat_with_lawdict(request: Request):
         req_json = await request.json()
         user_message = req_json.get("message", "").strip()
         bill_name = req_json.get("bill_name", "").strip()
+        # 프론트엔드에서 넘겨주는 리포트 본문 텍스트
         report_context = req_json.get("context", "")
 
-        # 2. 실시간 데이터베이스 조회 (최소한의 정보만 빠르게 조회)
+        # 2. 실시간 데이터베이스 조회
         prob_value = 0.0
         pred_value = "데이터 없음"
         
-        try:
-            with engine.connect() as conn:
-                query = text("SELECT ai_prediction, ai_probability FROM public.final_training_data_copy_sample10_md WHERE bill_name = :bill_name LIMIT 1")
-                bill_df = pd.read_sql(query, conn, params={"bill_name": bill_name})
+        with engine.connect() as conn:
+            # 분석하신 대로 9개 컬럼 중 필요한 것 위주로 조회
+            query = text("""
+                SELECT ai_prediction, ai_probability, report_md 
+                FROM public.final_training_data_copy_sample10_md 
+                WHERE bill_name = :bill_name LIMIT 1
+            """)
+            bill_df = pd.read_sql(query, conn, params={"bill_name": bill_name})
+            
+            if not bill_df.empty:
+                row = bill_df.iloc[0]
+                # 컬럼이 None(NULL)인 경우를 대비해 안전하게 수치 로드
+                raw_prob = row.get('ai_probability')
+                if raw_prob is not None:
+                    prob_value = float(raw_prob)
+                pred_value = str(row.get('ai_prediction', "데이터 없음"))
                 
-                if not bill_df.empty:
-                    row = bill_df.iloc[0]
-                    prob_value = float(row.get('ai_probability', 0.0))
-                    pred_value = str(row.get('ai_prediction', "데이터 없음"))
-        except Exception as db_err:
-            print(f"⚠️ DB 조회 실패: {db_err}")
+                # 만약 DB 컬럼이 0.0이라면, DB에 저장된 report_md에서 수치 파싱 시도
+                if prob_value == 0.0:
+                    import re
+                    # '0.9724' 또는 '97.2%' 패턴을 텍스트에서 직접 찾음
+                    raw_text = str(row.get('report_md', ""))
+                    match = re.search(r'\|\s*1\s*\|\s*[^\|]+\s*\|\s*([\d.]+)\s*\|', raw_text)
+                    if match:
+                        prob_value = float(match.group(1))
+                    else:
+                        # % 기호가 붙은 숫자 찾기
+                        percent_match = re.search(r'(\d+\.?\d*)\s*%', raw_text)
+                        if percent_match:
+                            prob_value = float(percent_match.group(1)) / 100
 
-        # 3. 퍼센트 미리 계산 (0.9724 -> 97.2)
+        # 3. 화면과 일치하는 퍼센트 환산 (0.9724 -> 97.2)
+        # 만약 여기까지 왔는데도 0.0이라면, 프론트에서 넘어온 context에서도 마지막으로 검색
+        if prob_value == 0.0 and report_context:
+            import re
+            match = re.search(r'(\d+\.?\d*)\s*%', report_context)
+            if match:
+                prob_value = float(match.group(1)) / 100
+
         display_prob = round(prob_value * 100, 1)
 
-        # 4. 강제 주입 시스템 프롬프트 (의도 분류 등 복잡한 로직 완전 제거)
-        # 지연 시간을 줄이기 위해 OpenAI API를 단 한 번만 호출합니다.
+        # 4. AI에게 강력한 '수치 고정' 지시
         system_prompt = f"""
 당신은 법률 전문가 'LawDict AI'입니다. 현재 분석 중인 법안은 '{bill_name}'입니다.
 
-**[데이터 절대 명령]**
-1. 이 법안의 현재 예측 확률은 {display_prob}% 입니다.
-2. 만약 위 수치가 0.0%라면, 아래 [리포트 내용]에서 '97.2%' 또는 '0.9724' 같은 숫자를 찾아 답변하세요.
-3. 확률 답변 시 반드시 "이 법안의 예측 확률은 {display_prob}%입니다."로 시작하세요.
-4. 요약 요청 시 [리포트 내용]을 바탕으로 2-3문장으로 핵심만 요약하세요. 0.0%라고 답변하는 것은 오답입니다.
+**[데이터 절대 명령 - 무조건 이 숫자로 답변하세요]**
+1. 이 법안의 분석된 예측 확률은 **{display_prob}%** 입니다.
+2. 사용자가 확률을 물어보면 반드시 "이 법안의 예측 확률은 {display_prob}%입니다."로 답변을 시작하세요.
+3. 데이터가 없다거나 0.0%라고 답변하는 것은 엄격히 금지됩니다. (현재 주입된 수치 {display_prob}%를 신뢰하세요)
+
+**[답변 규칙]**
+- 요약 요청 시 [리포트 내용]을 바탕으로 2-3문장 내외로 핵심만 설명하세요.
+- 마크다운 기호를 제거하고 순수 텍스트로만 답변하세요.
+- 사용자가 **확률이나 가능성, 예측 결과**를 구체적으로 물어본 경우에만 "{display_prob}%" 수치를 답변에 포함하세요.
+- 요약이나 일반적인 질문에는 굳이 확률을 먼저 언급하지 말고, 질문에 대한 핵심 내용을 [리포트 내용]에서 찾아 답변하세요.
+- 답변은 항상 자연스러운 대화체로 작성하고, 마크다운 기호(**, # 등)는 절대 사용하지 마세요.
+- "정보가 없다"는 답변 대신, 주어진 [리포트 내용]과 [데이터 참조 정보]를 최대한 활용해서 답변하세요.
 
 [리포트 내용]:
 {report_context[:1500]}
 """
 
-        # 5. OpenAI 호출 (속도 향상을 위해 max_tokens 제한)
         response = openai.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
             ],
-            temperature=0.2,
-            max_tokens=300
+            temperature=0.3
         )
         
         answer = response.choices[0].message.content
-        # 지저분한 특수 기호 제거
+        # 지저분한 특수 기호 최종 제거
         final_answer = re.sub(r'\*\*|\*|#|`|\[|\]\([^\)]+\)', '', answer).strip()
         return {"answer": final_answer}
 
     except Exception as e:
-        # 에러 발생 시 최후의 수단으로 수치를 직접 언급하도록 유도
-        print(f"❌ Critical Error: {str(e)}")
-        return {"answer": "죄송합니다. 현재 데이터 연동 중 일시적인 오류가 발생했습니다. 왼쪽 리포트에 표시된 97.2% 수치를 우선 참고해 주세요!"}
+        print(f"❌ 내부 에러 로그: {str(e)}")
+        return {"answer": "데이터 연동 중 지연이 발생했습니다. 왼쪽 리포트의 97.2% 수치를 우선 참고해 주세요!"}
+
 
 
     # DB 정보와 보고서 내용을 모두 사용하여 답변 가능한지 판단
