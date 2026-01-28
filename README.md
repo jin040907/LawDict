@@ -13,7 +13,7 @@
 
 ## 📋 프로젝트 소개
 
-LawDict는 머신러닝과 AI를 활용하여 법안의 처리 결과를 예측하고, 상세한 분석 리포트를 제공하는 웹 애플리케이션입니다. 
+LawDict는 머신러닝과 AI를 활용하여 법안의 처리 결과를 예측하고, 상세한 분석 리포트를 제공하는 웹 애플리케이션입니다.
 
 ### 🎯 프로젝트 목적
 
@@ -66,20 +66,22 @@ LawDict/
 ### 디렉토리 설명
 
 - **service/**: FastAPI 기반 웹 서버 코드
+
   - `main.py`: 모든 API 엔드포인트와 비즈니스 로직 포함
   - `templates/`: Jinja2 템플릿으로 렌더링되는 HTML 페이지
-  
 - **model/**: 머신러닝 모델 학습 및 평가
+
   - CatBoost 분류 모델 사용
   - 법안 처리 결과 8개 클래스 예측
-  
 - **report/**: 리포트 생성 및 데이터 처리
+
   - AI 리포트 자동 생성
   - 뉴스 데이터 수집 및 저장
 
 ## 🛠 기술 스택
 
 ### Backend
+
 - **FastAPI** (0.100+): 고성능 비동기 Python 웹 프레임워크
 - **PostgreSQL** (12+): 관계형 데이터베이스
 - **SQLAlchemy**: Python ORM 및 데이터베이스 툴킷
@@ -88,22 +90,26 @@ LawDict/
 - **Python-dotenv**: 환경 변수 관리
 
 ### AI/ML
+
 - **OpenAI API**: GPT-4o-mini 기반 챗봇 및 리포트 생성
 - **CatBoost**: 그래디언트 부스팅 머신러닝 모델
 - **scikit-learn**: 머신러닝 유틸리티
 - **NumPy**: 수치 계산
 
 ### Frontend
+
 - **Tailwind CSS**: 유틸리티 기반 CSS 프레임워크
 - **Chart.js**: 데이터 시각화 (도넛 차트)
 - **Jinja2**: Python 템플릿 엔진
 - **Vanilla JavaScript**: 클라이언트 사이드 로직
 
 ### 개발 도구
+
 - **Jupyter Notebook**: 모델 학습 및 데이터 분석
 - **DuckDuckGo Search**: 웹 검색 기능 (챗봇 보조)
 
 ### 데이터베이스 스키마
+
 - **PostgreSQL**: 법안 데이터 저장
 - 주요 테이블: `public.final_training_data_copy_sample10_md`
 
@@ -126,18 +132,21 @@ cd LawDict
 ### 2. 가상 환경 생성 및 활성화
 
 **Linux/macOS:**
+
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
 **Windows:**
+
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
 **PowerShell:**
+
 ```powershell
 python -m venv venv
 venv\Scripts\Activate.ps1
@@ -151,6 +160,7 @@ pip install -r requirements.txt
 ```
 
 **주요 패키지 목록:**
+
 ```
 fastapi>=0.100.0
 uvicorn[standard]>=0.23.0
@@ -177,6 +187,7 @@ OPENAI_MODEL_PRIMARY=gpt-4o-mini
 ```
 
 **환경 변수 설명:**
+
 - `OPENAI_API_KEY`: OpenAI API 키 (https://platform.openai.com/api-keys 에서 발급)
 - `OPENAI_MODEL_PRIMARY`: 사용할 OpenAI 모델 (기본값: gpt-4o-mini)
 
@@ -185,11 +196,13 @@ OPENAI_MODEL_PRIMARY=gpt-4o-mini
 #### 5.1 PostgreSQL 설치 및 데이터베이스 생성
 
 **PostgreSQL 설치:**
+
 - Linux: `sudo apt-get install postgresql` (Ubuntu/Debian)
 - macOS: `brew install postgresql`
 - Windows: https://www.postgresql.org/download/windows/
 
 **데이터베이스 생성:**
+
 ```sql
 CREATE DATABASE bill_db;
 CREATE USER your_username WITH PASSWORD 'your_password';
@@ -206,6 +219,7 @@ DB_URL = "postgresql://username:password@localhost:5432/bill_db"
 ```
 
 **연결 문자열 형식:**
+
 ```
 postgresql://[사용자명]:[비밀번호]@[호스트]:[포트]/[데이터베이스명]
 ```
@@ -213,9 +227,11 @@ postgresql://[사용자명]:[비밀번호]@[호스트]:[포트]/[데이터베이
 #### 5.3 테이블 생성
 
 필요한 테이블이 이미 존재해야 합니다:
+
 - `public.final_training_data_copy_sample10_md`: 법안 데이터 테이블
 
 **주요 컬럼:**
+
 - `bill_id` (PK): 법안 고유 ID
 - `bill_name`: 법안명
 - `proposer_name`: 발의자명
@@ -250,12 +266,14 @@ uvicorn main:app --host 0.0.0.0 --port 8888 --workers 4
 ```
 
 **서버 접속:**
+
 - 로컬: http://localhost:8888
 - 네트워크: http://[서버IP]:8888
 
 ### 7. 실행 확인
 
 서버가 정상적으로 실행되면 다음 메시지가 표시됩니다:
+
 ```
 INFO:     Uvicorn running on http://0.0.0.0:8888
 INFO:     Application startup complete.
@@ -266,6 +284,7 @@ INFO:     Application startup complete.
 ### 🔧 문제 해결
 
 #### 포트가 이미 사용 중인 경우
+
 ```bash
 # 포트 사용 프로세스 확인
 lsof -i :8888  # macOS/Linux
@@ -276,11 +295,13 @@ uvicorn main:app --port 8000
 ```
 
 #### 데이터베이스 연결 오류
+
 - PostgreSQL 서비스가 실행 중인지 확인
 - 연결 정보(호스트, 포트, 사용자명, 비밀번호) 확인
 - 방화벽 설정 확인
 
 #### OpenAI API 오류
+
 - API 키가 올바른지 확인
 - API 사용량 한도 확인
 - 네트워크 연결 확인
@@ -313,28 +334,34 @@ uvicorn main:app --port 8000
 3. **주요 섹션**:
 
    **#1 AI 모델 예측 및 분석**
+
    - 예측 확률 도넛 차트 (Top 3 예측 결과)
    - 모델 예측 결과 상세 설명
    - 핵심 요약 리포트
 
    **#2 법안 정보 및 요약**
+
    - 법안 요약 정보
    - 입력 법안 메타데이터
 
    **#3 데이터 기반 근거 분석**
+
    - 예측 근거 데이터 테이블
    - 피처별 기여도 분석
 
    **#4 유사 법안 비교 분석**
+
    - 유사 법안 비교 테이블
    - 유사도 점수 및 핵심 차이점
    - 관련 뉴스 (최대 10개)
 
    **#5 사회적 영향력 분석**
+
    - 법안의 사회적 영향 분석
    - 이해관계자 영향 평가
 
    **#6 향후 대응 방향 및 제언**
+
    - 대응 전략 제안
    - 권장 사항
 
@@ -368,12 +395,14 @@ jupyter notebook model_final.ipynb
 ```
 
 **모델 정보:**
+
 - **알고리즘**: CatBoost Classifier
 - **예측 클래스**: 8개 (원안가결, 수정가결, 부결, 폐기, 철회, 임기만료폐기, 대안반영폐기, 수정안반영폐기)
 - **입력 피처**: 법안명, 요약, 발의일 등
 - **임계값**: `thresholds_8class_final.json` 파일에 저장
 
 **학습 프로세스:**
+
 1. 데이터베이스에서 학습 데이터 로드
 2. 피처 엔지니어링 및 전처리
 3. CatBoost 모델 학습
@@ -391,12 +420,14 @@ jupyter notebook ai_report_column.ipynb
 ```
 
 **리포트 생성 프로세스:**
+
 1. 데이터베이스에서 법안 데이터 로드
 2. OpenAI API를 사용하여 리포트 생성
 3. 마크다운 형식으로 리포트 작성
 4. 데이터베이스의 `report_md` 컬럼에 저장
 
 **리포트 구성:**
+
 - 0. 요약 (summary)
 - 1. 입력 법안 정보 (bill_info)
 - 2. 모델 예측 결과 (prediction)
@@ -406,6 +437,7 @@ jupyter notebook ai_report_column.ipynb
 - 6. 향후 대응 방향 및 제언 (next_action)
 
 **주의사항:**
+
 - OpenAI API 사용량에 주의
 - 리포트 생성에는 시간이 소요될 수 있음
 - API 레이트 리밋을 고려하여 딜레이 설정
@@ -420,6 +452,7 @@ jupyter notebook news_column.ipynb
 ```
 
 **뉴스 수집 프로세스:**
+
 1. 리포트의 "유사 사례 비교 분석" 섹션에서 키워드 추출
 2. 딥서치뉴스 API를 사용하여 뉴스 검색
 3. 발의일 기준 전후 6개월 범위로 검색
@@ -427,6 +460,7 @@ jupyter notebook news_column.ipynb
 5. JSON 형식으로 데이터베이스의 `news` 컬럼에 저장
 
 **뉴스 데이터 구조:**
+
 ```json
 [
   {
@@ -445,24 +479,28 @@ jupyter notebook news_column.ipynb
 법안을 검색하는 API입니다.
 
 **엔드포인트:**
+
 ```
 GET /api/search
 ```
 
 **쿼리 파라미터:**
-| 파라미터 | 타입 | 필수 | 설명 |
-|---------|------|------|------|
-| `q` | string | 선택 | 검색어 (법안명 또는 발의자명) |
-| `year` | integer | 선택 | 발의 연도 (2008-2026) |
-| `month` | integer | 선택 | 발의 월 (1-12) |
-| `day` | integer | 선택 | 발의 일 (1-31) |
+
+| 파라미터  | 타입    | 필수 | 설명                          |
+| --------- | ------- | ---- | ----------------------------- |
+| `q`     | string  | 선택 | 검색어 (법안명 또는 발의자명) |
+| `year`  | integer | 선택 | 발의 연도 (2008-2026)         |
+| `month` | integer | 선택 | 발의 월 (1-12)                |
+| `day`   | integer | 선택 | 발의 일 (1-31)                |
 
 **요청 예시:**
+
 ```bash
 curl "http://localhost:8888/api/search?q=헌법&year=2024&month=1"
 ```
 
 **응답 형식:**
+
 ```json
 {
   "results": [
@@ -478,6 +516,7 @@ curl "http://localhost:8888/api/search?q=헌법&year=2024&month=1"
 ```
 
 **응답 필드:**
+
 - `results`: 검색 결과 배열
   - `bill_id`: 법안 고유 ID
   - `bill_name`: 법안명
@@ -486,6 +525,7 @@ curl "http://localhost:8888/api/search?q=헌법&year=2024&month=1"
 - `count`: 검색 결과 개수
 
 **에러 응답:**
+
 ```json
 {
   "results": [],
@@ -498,11 +538,13 @@ curl "http://localhost:8888/api/search?q=헌법&year=2024&month=1"
 법안 상세 정보를 조회하는 API입니다.
 
 **엔드포인트:**
+
 ```
 GET /bill/{bill_id}
 ```
 
 **경로 파라미터:**
+
 - `bill_id`: 법안 고유 ID
 
 **응답:** HTML 페이지 (detail.html 템플릿)
@@ -512,16 +554,19 @@ GET /bill/{bill_id}
 법안 분석 내용에 대한 질문에 답변하는 API입니다.
 
 **엔드포인트:**
+
 ```
 POST /api/chat
 ```
 
 **요청 헤더:**
+
 ```
 Content-Type: application/json
 ```
 
 **요청 본문:**
+
 ```json
 {
   "message": "이 법안의 예측 확률은 얼마인가요?",
@@ -531,11 +576,13 @@ Content-Type: application/json
 ```
 
 **요청 필드:**
+
 - `message` (필수): 사용자 질문
 - `bill_name` (필수): 법안명
 - `context` (선택): 리포트 본문 텍스트
 
 **요청 예시:**
+
 ```bash
 curl -X POST "http://localhost:8888/api/chat" \
   -H "Content-Type: application/json" \
@@ -547,6 +594,7 @@ curl -X POST "http://localhost:8888/api/chat" \
 ```
 
 **응답 형식:**
+
 ```json
 {
   "answer": "이 법안은 ... 에 관한 내용입니다."
@@ -554,9 +602,11 @@ curl -X POST "http://localhost:8888/api/chat" \
 ```
 
 **응답 필드:**
+
 - `answer`: AI가 생성한 답변 텍스트
 
 **에러 응답:**
+
 ```json
 {
   "answer": "데이터 연동 중 지연이 발생했습니다. 왼쪽 리포트의 수치를 우선 참고해 주세요!"
@@ -568,17 +618,20 @@ curl -X POST "http://localhost:8888/api/chat" \
 법안 목록을 조회하는 API입니다.
 
 **엔드포인트:**
+
 ```
 GET /
 GET /?page={페이지번호}
 ```
 
 **쿼리 파라미터:**
+
 - `page` (선택): 페이지 번호 (기본값: 1)
 
 **응답:** HTML 페이지 (index.html 템플릿)
 
 **페이지네이션:**
+
 - 페이지당 5개 법안 표시
 - 하단에 페이지 번호 표시
 
@@ -592,19 +645,19 @@ GET /?page={페이지번호}
 
 #### 주요 컬럼
 
-| 컬럼명 | 타입 | 설명 |
-|--------|------|------|
-| `bill_id` | VARCHAR/INTEGER | 법안 고유 ID (PK) |
-| `bill_name` | TEXT | 법안명 |
-| `proposer_name` | TEXT | 발의자명 |
-| `propose_dt` | DATE/TIMESTAMP | 발의일 |
-| `summary` | TEXT | 법안 요약 |
-| `ai_prediction` | VARCHAR | AI 예측 결과 |
-| `ai_probability` | DECIMAL | AI 예측 확률 (0.0 ~ 1.0) |
-| `ai_report` | TEXT | AI 요약 리포트 (HTML) |
-| `report_md` | TEXT | 상세 분석 리포트 (마크다운) |
-| `news` | TEXT/JSONB | 관련 뉴스 데이터 (JSON 문자열) |
-| `general_result` | VARCHAR | 실제 처리 결과 (학습용) |
+| 컬럼명             | 타입            | 설명                           |
+| ------------------ | --------------- | ------------------------------ |
+| `bill_id`        | VARCHAR/INTEGER | 법안 고유 ID (PK)              |
+| `bill_name`      | TEXT            | 법안명                         |
+| `proposer_name`  | TEXT            | 발의자명                       |
+| `propose_dt`     | DATE/TIMESTAMP  | 발의일                         |
+| `summary`        | TEXT            | 법안 요약                      |
+| `ai_prediction`  | VARCHAR         | AI 예측 결과                   |
+| `ai_probability` | DECIMAL         | AI 예측 확률 (0.0 ~ 1.0)       |
+| `ai_report`      | TEXT            | AI 요약 리포트 (HTML)          |
+| `report_md`      | TEXT            | 상세 분석 리포트 (마크다운)    |
+| `news`           | TEXT/JSONB      | 관련 뉴스 데이터 (JSON 문자열) |
+| `general_result` | VARCHAR         | 실제 처리 결과 (학습용)        |
 
 #### 인덱스 권장사항
 
@@ -621,33 +674,34 @@ CREATE INDEX idx_propose_dt ON public.final_training_data_copy_sample10_md(propo
 #### 섹션 구성
 
 1. **0. 요약 (summary)**
+
    - 법안의 핵심 요약 정보
    - 신뢰도 표시
-
 2. **1. 입력 법안 정보 (bill_info)**
+
    - 법안 메타데이터
    - 발의자 정보
    - 발의일 등
-
 3. **2. 모델 예측 결과 (prediction)**
+
    - 예측 확률 테이블 (순위, 예측, 확률)
    - Top 3 예측 결과
    - 예측 근거 설명
-
 4. **3. 데이터 기반 근거 분석 (evidence)**
+
    - 피처별 기여도 분석
    - 예측에 영향을 미친 주요 요인
-
 5. **4. 유사 사례 비교 분석 (similar_cases)**
+
    - 유사 법안 비교 테이블
    - 유사도 점수
    - 핵심 차이점
-
 6. **5. 사회적 영향력 분석 (social_impact)**
+
    - 법안의 사회적 영향 평가
    - 이해관계자 영향 분석
-
 7. **6. 향후 대응 방향 및 제언 (next_action)**
+
    - 대응 전략 제안
    - 권장 사항
 
@@ -656,28 +710,32 @@ CREATE INDEX idx_propose_dt ON public.final_training_data_copy_sample10_md(propo
 #### 주요 함수
 
 **`remove_report_titles()`**
+
 - 보고서에 자동 추가된 제목 제거
 - 이모지 및 마크다운 제목 패턴 제거
 
 **`parse_prediction_table()`**
+
 - 리포트에서 예측 확률 테이블 파싱
 - Top 3 예측 결과 추출
 
 **`split_expert_report()`**
+
 - 전문가 보고서를 섹션별로 분리
 - JSON 또는 마크다운 형식 자동 감지
 - HTML 변환
 
 **`search_web()`**
+
 - DuckDuckGo 검색 API 사용
 - 웹 검색 결과 반환
 
 ### 환경 변수
 
-| 변수명 | 필수 | 기본값 | 설명 |
-|--------|------|--------|------|
-| `OPENAI_API_KEY` | ✅ | - | OpenAI API 키 |
-| `OPENAI_MODEL_PRIMARY` | ❌ | `gpt-4o-mini` | 사용할 OpenAI 모델 |
+| 변수명                   | 필수 | 기본값          | 설명               |
+| ------------------------ | ---- | --------------- | ------------------ |
+| `OPENAI_API_KEY`       | ✅   | -               | OpenAI API 키      |
+| `OPENAI_MODEL_PRIMARY` | ❌   | `gpt-4o-mini` | 사용할 OpenAI 모델 |
 
 ### 성능 최적화
 
@@ -711,18 +769,19 @@ logging.basicConfig(
 ### 수동 테스트
 
 1. **법안 검색 테스트**
+
    ```bash
    curl "http://localhost:8888/api/search?q=헌법"
    ```
-
 2. **챗봇 테스트**
+
    ```bash
    curl -X POST "http://localhost:8888/api/chat" \
      -H "Content-Type: application/json" \
      -d '{"message": "테스트", "bill_name": "테스트 법안"}'
    ```
-
 3. **페이지 접속 테스트**
+
    - 메인 페이지: http://localhost:8888
    - 상세 페이지: http://localhost:8888/bill/{bill_id}
 
@@ -770,6 +829,7 @@ CMD ["uvicorn", "service.main:app", "--host", "0.0.0.0", "--port", "8888"]
 ## 📝 변경 이력
 
 ### v1.0.0 (2026)
+
 - 초기 릴리스
 - 법안 검색 기능
 - AI 예측 분석
@@ -795,31 +855,39 @@ CMD ["uvicorn", "service.main:app", "--host", "0.0.0.0", "--port", "8888"]
 ## 📚 추가 자료
 
 ### 관련 문서
+
 - [FastAPI 문서](https://fastapi.tiangolo.com/)
 - [PostgreSQL 문서](https://www.postgresql.org/docs/)
 - [OpenAI API 문서](https://platform.openai.com/docs/)
 - [CatBoost 문서](https://catboost.ai/docs/)
 
 ### 유용한 링크
+
 - [법제처 법령정보시스템](https://www.law.go.kr/)
 - [국회 법률정보시스템](https://likms.assembly.go.kr/)
 
 ## ❓ FAQ
 
 ### Q: 모델 예측 정확도는 얼마인가요?
+
 A: 모델 성능은 학습 데이터와 평가 지표에 따라 다릅니다. `model/model_final.ipynb`에서 확인할 수 있습니다.
 
 ### Q: 리포트 생성에 시간이 얼마나 걸리나요?
+
 A: 법안당 약 10-30초 정도 소요됩니다. OpenAI API 응답 시간에 따라 달라질 수 있습니다.
 
 ### Q: 데이터베이스에 데이터가 없으면 어떻게 하나요?
+
 A: 먼저 데이터를 데이터베이스에 로드해야 합니다. 모델 학습 및 리포트 생성 노트북을 실행하면 데이터가 생성됩니다.
 
 ### Q: 챗봇이 답변을 하지 않으면?
+
 A: OpenAI API 키가 올바른지 확인하고, 네트워크 연결을 확인하세요. 리포트 내용이 있는지도 확인해야 합니다.
 
 ### Q: 다른 포트로 실행하려면?
+
 A: uvicorn 실행 시 `--port` 옵션을 사용하세요:
+
 ```bash
 uvicorn main:app --port 8000
 ```
@@ -841,7 +909,4 @@ uvicorn main:app --port 8000
 
 **© 2026 LawDict AI Legislative Platform | Project by CG INSIDE**
 
-Made with ❤️ using FastAPI, PostgreSQL, and OpenAI
-
 </div>
-
