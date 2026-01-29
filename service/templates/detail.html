@@ -20,7 +20,18 @@
 
         * { font-family: 'Noto Sans KR', sans-serif; }
 
-        body { background-color: #f4f7fa; }
+        body { 
+            background-color: #f4f7fa;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+        
+        /* 페이지 전체에서 단어가 중간에 잘리지 않도록 설정 */
+        body, .markdown-body, .glass-card, div, p, span {
+            word-break: keep-all;
+            overflow-wrap: break-word;
+            hyphens: none;
+        }
 
         .header-gradient { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); }
 
@@ -34,7 +45,7 @@
 
             @apply p-8 rounded-[2rem] bg-white shadow-xl shadow-slate-900/5;
 
-            margin-bottom: 10rem;
+            margin-bottom: 3rem;
 
         }
 
@@ -112,7 +123,7 @@
 
             font-weight: 700 !important;
 
-            text-align: left !important;
+            text-align: left;
 
             color: #334155 !important;
 
@@ -155,6 +166,8 @@
             word-wrap: break-word !important;
 
             word-break: keep-all !important;
+            
+            overflow-wrap: break-word !important;
 
             line-height: 1.4 !important;
 
@@ -175,6 +188,7 @@
             width: 100% !important;
 
         }
+        
 
        
 
@@ -334,61 +348,89 @@
 
         /* 유사 사례 비교 분석 표 전용 스타일 (5개 컬럼: 순위, 법안명, 처리 결과, 유사도, 핵심 차이) */
 
-        /* section4 내의 표에만 적용 */
+        /* section4 내의 표에만 적용 - 유사 법안 비교 분석 표 */
+        /* 두 번째 이미지처럼 디자인 적용 */
 
-        #section4 .markdown-body td:nth-child(2),
+        #section4 .markdown-body table {
+            table-layout: fixed !important;
+            width: 100% !important;
+            border-collapse: collapse !important;
+            border: none !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+            border-radius: 0.5rem !important;
+            overflow: hidden !important;
+            background-color: white !important;
+        }
 
+        #section4 .markdown-body table th,
+        #section4 .markdown-body table thead th,
+        #section4 table th {
+            background-color: #e0f2fe !important;
+            color: #1e40af !important;
+            font-weight: 700 !important;
+            padding: 0.75rem 1rem !important;
+            text-align: center !important;
+            border: none !important;
+            font-size: 0.875rem !important;
+        }
+
+        #section4 .markdown-body table td {
+            background-color: white !important;
+            padding: 0.75rem 1rem !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            color: #475569 !important;
+            font-size: 0.875rem !important;
+        }
+
+        /* 모든 행 동일한 색상 */
+        #section4 .markdown-body table tbody tr td {
+            background-color: white !important;
+        }
+
+        #section4 .markdown-body table tbody tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        #section4 .markdown-body td:nth-child(1),
+        #section4 .markdown-body th:nth-child(1) {
+            width: 60px !important;
+            min-width: 60px !important;
+            max-width: 60px !important;
+            text-align: center !important;
+            padding: 0.75rem 0.5rem !important;
+            white-space: nowrap !important;
+        }
+
+        #section4 .markdown-body td:nth-child(2) {
+            width: auto !important;
+            min-width: 200px !important;
+            padding: 0.75rem 1rem !important;
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
+            text-align: left !important;
+        }
         #section4 .markdown-body th:nth-child(2) {
-
-            min-width: 250px !important;
-
-            max-width: 400px !important;
-
-            padding: 0.5rem 0.75rem !important;
-
+            width: auto !important;
+            min-width: 200px !important;
+            padding: 0.75rem 1rem !important;
+            text-align: center !important;
         }
 
         #section4 .markdown-body td:nth-child(3),
-
         #section4 .markdown-body th:nth-child(3) {
-
-            width: 120px !important;
-
-            min-width: 120px !important;
-
-            max-width: 120px !important;
-
+            width: 140px !important;
+            min-width: 140px !important;
+            max-width: 140px !important;
             text-align: center !important;
-
-            padding: 0.5rem 0.5rem !important;
-
+            padding: 0.75rem 0.5rem !important;
+            white-space: nowrap !important;
+            word-break: keep-all !important;
         }
 
-        #section4 .markdown-body td:nth-child(4),
-
-        #section4 .markdown-body th:nth-child(4) {
-
-            width: 100px !important;
-
-            min-width: 100px !important;
-
-            max-width: 100px !important;
-
-            text-align: center !important;
-
-            padding: 0.5rem 0.5rem !important;
-
-        }
-
-        #section4 .markdown-body td:nth-child(5),
-
-        #section4 .markdown-body th:nth-child(5) {
-
-            min-width: 200px !important;
-
-            padding: 0.5rem 0.75rem !important;
-
-        }
 
         /* 모델 예측 결과 표 전용 스타일 (3개 컬럼: 순위, 예측, 확률) */
         /* section2 내의 표에만 적용 */
@@ -403,6 +445,7 @@
             width: auto !important;
             max-width: none !important;
             word-break: keep-all !important;
+            overflow-wrap: break-word !important;
             overflow: visible !important;
         }
 
@@ -415,14 +458,102 @@
         }
 
         /* 데이터 기반 근거 분석 표 전용 스타일 (4개 컬럼: 순위, 피처, 값, 해석) */
-        /* section3 내의 표에만 적용 */
-        #section3 .markdown-body td:nth-child(3),
-        #section3 .markdown-body th:nth-child(3) {
+        /* section3 내의 표에만 적용 - section4와 동일한 디자인 */
+        #section3 .markdown-body table {
+            table-layout: fixed !important;
+            width: 100% !important;
+            border-collapse: collapse !important;
+            border: none !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+            border-radius: 0.5rem !important;
+            overflow: hidden !important;
+            background-color: white !important;
+        }
+
+        #section3 .markdown-body table th,
+        #section3 .markdown-body table thead th,
+        #section3 table th {
+            background-color: #e0f2fe !important;
+            color: #1e40af !important;
+            font-weight: 700 !important;
+            padding: 0.75rem 1rem !important;
+            text-align: center !important;
+            border: none !important;
+            font-size: 0.875rem !important;
+        }
+
+        #section3 .markdown-body table td {
+            background-color: white !important;
+            padding: 0.75rem 1rem !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            color: #475569 !important;
+            font-size: 0.875rem !important;
+        }
+
+        /* 모든 행 동일한 색상 */
+        #section3 .markdown-body table tbody tr td {
+            background-color: white !important;
+        }
+
+        #section3 .markdown-body table tbody tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        /* 열 너비 설정 */
+        #section3 .markdown-body table td:nth-child(1),
+        #section3 .markdown-body table th:nth-child(1) {
+            width: 60px !important;
+            min-width: 60px !important;
+            max-width: 60px !important;
+            text-align: center !important;
+            padding: 0.75rem 0.5rem !important;
+        }
+
+        #section3 .markdown-body table td:nth-child(2) {
+            width: 17% !important;
+            min-width: 170px !important;
+            max-width: 200px !important;
+            padding: 0.75rem 1rem !important;
+            text-align: left !important;
+        }
+        #section3 .markdown-body table th:nth-child(2) {
+            width: 17% !important;
+            min-width: 170px !important;
+            max-width: 200px !important;
+            padding: 0.75rem 1rem !important;
+            text-align: center !important;
+        }
+
+        #section3 .markdown-body table td:nth-child(3) {
             width: 18% !important;
             min-width: 180px !important;
             max-width: 220px !important;
             word-break: keep-all !important;
-            padding: 0.5rem 0.75rem !important;
+            padding: 0.75rem 1rem !important;
+            text-align: left !important;
+        }
+        #section3 .markdown-body table th:nth-child(3) {
+            width: 18% !important;
+            min-width: 180px !important;
+            max-width: 220px !important;
+            padding: 0.75rem 1rem !important;
+            text-align: center !important;
+        }
+
+        #section3 .markdown-body table td:nth-child(4) {
+            width: auto !important;
+            min-width: 300px !important;
+            padding: 0.75rem 1rem !important;
+            text-align: left !important;
+        }
+        #section3 .markdown-body table th:nth-child(4) {
+            width: auto !important;
+            min-width: 300px !important;
+            padding: 0.75rem 1rem !important;
+            text-align: center !important;
         }
 
         .markdown-body td:last-child {
@@ -462,6 +593,8 @@
             line-height: 1.4 !important;
 
         }
+
+        /* section6 (시사점)에서 <li><strong>[제목]**:</strong> 앞에만 공백 추가 - CSS는 제거하고 HTML 후처리만 사용 */
 
        
 
@@ -807,7 +940,75 @@
 
         }
 
-
+        /* 법안 정보 카드 스타일 */
+        .bill-info-card-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.5rem 1.5rem 0.75rem 1.5rem;
+            box-shadow: none;
+            transition: all 0.3s ease;
+        }
+        
+        .bill-info-card-container:hover {
+            box-shadow: none;
+        }
+        
+        .bill-info-card-header {
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .bill-info-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e40af;
+            margin: 0;
+        }
+        
+        .bill-info-card-content {
+            padding: 0;
+        }
+        
+        .bill-info-card-content p {
+            margin-bottom: 0.35rem;
+            padding: 0;
+            line-height: 1.5;
+        }
+        
+        .bill-info-card-content p:last-child,
+        .bill-info-card-content > *:last-child,
+        .bill-info-card-content ul:last-child,
+        .bill-info-card-content ul li:last-child {
+            margin-bottom: 0 !important;
+        }
+        
+        .bill-info-card-content ul {
+            margin-bottom: 0;
+        }
+        
+        .bill-info-card-content ul li:last-child {
+            padding-bottom: 0;
+        }
+        
+        .bill-info-card-content .bill-info-label {
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        /* 카드 내 리스트 불릿(•) 제거 */
+        .bill-info-card-container ul,
+        .bill-info-card-container ol {
+            list-style: none !important;
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+        }
+        .bill-info-card-container li::before,
+        .bill-info-card-container li::marker {
+            content: none !important;
+            display: none !important;
+        }
 
         /* 챗봇 말풍선 */
 
@@ -895,7 +1096,7 @@
 
 
 
-    <header class="header-gradient text-white pt-16 pb-24 shadow-inner relative overflow-hidden">
+    <header class="header-gradient text-white pt-8 pb-12 shadow-inner relative overflow-hidden">
 
         <div class="max-w-[1440px] mx-auto px-8 relative z-10">
 
@@ -907,11 +1108,15 @@
 
             </a>
 
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight tracking-tighter">{{ bill_name }}</h1>
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-4 leading-tight tracking-tighter">{{ bill_name }}</h1>
 
             <div class="flex gap-4 items-center text-blue-100 font-semibold text-sm">
 
                 <span class="bg-blue-700/50 px-3 py-1 rounded-md uppercase">PRO Report</span>
+
+                <a id="original-link" href="{{ bill_url }}" target="_blank" rel="noopener noreferrer" class="bg-blue-700/50 hover:bg-blue-600/50 px-3 py-1 rounded-md transition-colors cursor-pointer underline" style="z-index: 1000; position: relative; display: inline-block; text-decoration: underline !important;">
+                    원문 링크
+                </a>
 
             </div>
 
@@ -921,27 +1126,34 @@
 
 
 
-    <div class="max-w-[1440px] mx-auto flex gap-10 px-8 py-12 relative z-20">
+    <div class="max-w-[1440px] mx-auto flex gap-10 px-8 pt-0 pb-12 relative z-20">
 
        
 
         <div class="flex-1 min-w-0">
 
-            <nav class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm mb-12 rounded-xl">
+            <nav class="sticky top-0 z-50 bg-white border-t border-slate-200 shadow-sm mb-12">
 
-                <div class="max-w-6xl mx-auto px-8 flex items-center justify-start gap-10 overflow-x-auto py-5 no-scrollbar">
+                <div class="max-w-[1440px] mx-auto px-8 flex items-center justify-between gap-10 overflow-x-auto py-5 no-scrollbar">
 
-                    <button onclick="scrollToSection('section2')" class="nav-link active" data-section="section2">#1 AI 분석</button>
+                    <div class="flex items-center gap-10">
+                        <button onclick="scrollToSection('section2')" class="nav-link active" data-section="section2">#1 AI 분석</button>
 
-                    <button onclick="scrollToSection('section1')" class="nav-link" data-section="section1">#2 법안 요약</button>
+                        <button onclick="scrollToSection('section1')" class="nav-link" data-section="section1">#2 법안 요약</button>
 
-                    <button onclick="scrollToSection('section3')" class="nav-link" data-section="section3">#3 판단 근거</button>
+                        <button onclick="scrollToSection('section3')" class="nav-link" data-section="section3">#3 판단 근거</button>
 
-                    <button onclick="scrollToSection('section4')" class="nav-link" data-section="section4">#4 유사 사례</button>
+                        <button onclick="scrollToSection('section4')" class="nav-link" data-section="section4">#4 유사 법안</button>
 
-                    <button onclick="scrollToSection('section5')" class="nav-link" data-section="section5">#5 사회적 영향</button>
+                        <button onclick="scrollToSection('section5')" class="nav-link" data-section="section5">#5 사회적 영향</button>
 
-                    <button onclick="scrollToSection('section6')" class="nav-link" data-section="section6">#6 향후 대응</button>
+                        <button onclick="scrollToSection('section6')" class="nav-link" data-section="section6">#6 시사점</button>
+                    </div>
+
+                    <a href="/" class="text-slate-600 hover:text-blue-600 font-semibold text-sm whitespace-nowrap flex items-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        목록으로 돌아가기
+                    </a>
 
                 </div>
 
@@ -953,7 +1165,7 @@
 
                 <div id="section2" class="section-box">
 
-                    <div class="mb-8 border-b border-blue-200 pb-4">
+                    <div class="mb-4 border-b border-blue-200 pb-3">
 
                         <span class="text-blue-600 font-black text-xs uppercase tracking-widest">AI Model Prediction & Analysis</span>
 
@@ -961,59 +1173,70 @@
 
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start" style="grid-template-columns: 1fr 1.5fr;">
+                    <div class="bill-info-card-container">
+                        <div class="bill-info-card-content">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start" style="grid-template-columns: 1fr 1.5fr;">
 
-                        <div class="glass-card flex flex-col items-center justify-center min-h-[450px] px-4 mx-auto max-w-sm">
+                                <div class="flex flex-col items-center justify-center px-4 mx-auto max-w-sm">
 
-                            <p class="text-[10px] font-black text-slate-400 mb-6 uppercase tracking-widest">PREDICTION PROBABILITY</p>
+                                    <p class="text-[10px] font-black text-slate-400 mb-6 uppercase tracking-widest">PREDICTION PROBABILITY</p>
 
-                            <div style="position: relative; width: 200px; height: 200px; padding: 10px;">
+                                    <div style="position: relative; width: 200px; height: 200px; padding: 10px;">
 
-                                <canvas id="probChart"></canvas>
+                                        <canvas id="probChart"></canvas>
+                                        
+                                        <!-- 차트 중앙에 표시될 퍼센트 수치 -->
+                                        <div id="chart-center-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
+                                            <span class="text-4xl font-black text-slate-900 tracking-tighter" id="top-probability">{{ probability }}%</span>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-3 text-center" id="prediction-summary">
+
+                                        <span class="block text-2xl font-bold text-slate-900" id="top-prediction">{{ prediction }}</span>
+
+                                    </div>
+
+                                    <div class="mt-6 w-full pb-4" id="chart-legend"></div>
+
+                                </div>
+
+                                <div id="report-summary-text" class="markdown-body flex flex-col border-l border-slate-200 pl-8">
+
+                                    <h3 class="section-subtitle">법안 분류</h3>
+
+                                    {% if sections.summary and sections.summary.strip() %}
+                                    <div id="bill-summary-content" class="text-sm leading-relaxed mb-4" style="word-break: keep-all; overflow-wrap: break-word;">{{ sections.summary | safe }}</div>
+                                    {% endif %}
+
+                                    {% if proposal_reason_html and proposal_reason_html.strip() %}
+
+                                    <h4 class="section-subtitle mt-4 mb-1 text-base">제안 이유</h4>
+
+                                    <div class="text-sm leading-relaxed mb-6" style="word-break: keep-all; overflow-wrap: break-word;">{{ proposal_reason_html | safe }}</div>
+
+                                    {% endif %}
+
+                                    {% if main_content_html and main_content_html.strip() %}
+
+                                    <h4 class="section-subtitle mt-6 mb-1 text-base">주요 내용</h4>
+
+                                    <div class="text-sm leading-relaxed" style="word-break: keep-all; overflow-wrap: break-word;">{{ main_content_html | safe }}</div>
+
+                                    {% endif %}
+
+                                </div>
 
                             </div>
-
-                            <div class="mt-6 text-center" id="prediction-summary">
-
-                                <span class="text-5xl font-black text-slate-900 tracking-tighter" id="top-probability">{{ probability }}%</span>
-
-                                <span class="block text-xs font-bold text-blue-600 mt-1 uppercase tracking-widest" id="top-prediction">{{ prediction }} 지수</span>
-
-                            </div>
-
-                            <div class="mt-6 w-full pb-4" id="chart-legend"></div>
-
                         </div>
-
-                        <div class="glass-card min-h-[450px] markdown-body">
-
-                            <h3 class="section-subtitle">모델 예측 결과</h3>
-
-                            <div class="text-sm leading-relaxed">{{ sections.prediction | default('분석 결과가 없습니다.') | safe }}</div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="bg-white rounded-xl border-2 border-blue-300 shadow-md p-6 mt-8" id="report-summary-text" style="height: fit-content; padding-bottom: 1.5rem;">
-
-                        {% if ai_report_html and ai_report_html.strip() %}
-
-                        <div class="markdown-body text-slate-800 text-sm leading-relaxed report-summary-content" style="margin-bottom: 0; padding-bottom: 0;">{{ ai_report_html | safe }}</div>
-
-                        {% else %}
-
-                        <div class="text-slate-500 text-sm italic">AI 요약 보고서가 준비 중입니다.</div>
-
-                        {% endif %}
-
                     </div>
 
                 </div>
 
                 <div id="section1" class="section-box">
 
-                    <div class="mb-8 border-b border-blue-200 pb-4">
+                    <div class="mb-4 border-b border-blue-200 pb-3">
 
                         <span class="text-blue-600 font-black text-xs uppercase tracking-widest">Bill Information & Summary</span>
 
@@ -1021,20 +1244,18 @@
 
                     </div>
 
-                    <div class="glass-card bg-slate-50 border-slate-200 mb-8">
-
-                        <h3 class="section-subtitle">요약</h3>
-
-                        <div class="markdown-body text-sm leading-relaxed">{{ sections.summary | default('데이터를 불러오는 중입니다.') | safe }}</div>
-
+                    <div class="bill-info-card-container mt-2">
+                        <div class="bill-info-card-header">
+                            <h3 class="bill-info-card-title">법안 정보</h3>
+                        </div>
+                        <div id="bill-info-metadata" class="bill-info-card-content markdown-body text-sm leading-relaxed">{{ sections.bill_info | default('법안 정보를 불러오는 중입니다.') | safe }}</div>
                     </div>
 
-                    <div class="glass-card bg-slate-50 border-slate-200 mt-6">
-
-                        <h3 class="section-subtitle">입력 법안 정보</h3>
-
-                        <div class="markdown-body text-sm leading-relaxed">{{ sections.bill_info | default('법안 정보를 불러오는 중입니다.') | safe }}</div>
-
+                    <div class="bill-info-card-container mt-4" id="bill-summary-card" style="display: none;">
+                        <div class="bill-info-card-header">
+                            <h3 class="bill-info-card-title">법안 요약</h3>
+                        </div>
+                        <div id="bill-summary-content-moved" class="bill-info-card-content markdown-body text-sm leading-relaxed"></div>
                     </div>
 
                 </div>
@@ -1043,7 +1264,7 @@
 
                 <div id="section3" class="section-box">
 
-                    <div class="mb-8 border-b border-slate-200 pb-4">
+                    <div class="mb-4 border-b border-slate-200 pb-3">
 
                         <span class="text-blue-600 font-black text-xs uppercase tracking-widest">Data-Driven Evidence Analysis</span>
 
@@ -1059,9 +1280,9 @@
 
                 <div id="section4" class="section-box">
 
-                    <div class="mb-8 border-b border-slate-200 pb-4">
+                    <div class="mb-4 border-b border-slate-200 pb-3">
 
-                        <span class="text-blue-600 font-black text-xs uppercase tracking-widest">Similar Case Comparison Analysis</span>
+                        <span class="text-blue-600 font-black text-xs uppercase tracking-widest">Similar Bills Comparison Analysis</span>
 
                         <h2 class="text-2xl font-extrabold">유사 법안 비교 분석</h2>
 
@@ -1082,14 +1303,14 @@
                             <div class="news-card bg-white border border-slate-200 rounded-lg p-3 hover:shadow-lg transition-all cursor-pointer h-32 overflow-hidden"
                                  onclick="window.open('{{ news_url }}', '_blank')"
                                  title="{{ news_title }}">
-                                <div class="text-xs font-semibold text-slate-600 mb-1 line-clamp-2">
+                                <div class="text-sm font-semibold text-slate-600 mb-1 line-clamp-2">
                                     {{ news_title }}
                                 </div>
-                                <div class="text-xs text-slate-400 mt-1">
+                                <div class="text-sm text-slate-400 mt-1">
                                     {{ news_publisher }}
                                 </div>
                                 {% if news_date %}
-                                <div class="text-xs text-slate-300 mt-1">
+                                <div class="text-sm text-slate-300 mt-1">
                                     {% if news_date|length > 10 %}{{ news_date[:10] }}{% else %}{{ news_date }}{% endif %}
                                 </div>
                                 {% endif %}
@@ -1105,7 +1326,7 @@
 
                 <div id="section5" class="section-box">
 
-                    <div class="mb-8 border-b border-slate-200 pb-4">
+                    <div class="mb-4 border-b border-slate-200 pb-3">
 
                         <span class="text-blue-600 font-black text-xs uppercase tracking-widest">Social Impact Analysis</span>
 
@@ -1113,7 +1334,25 @@
 
                     </div>
 
-                    <div class="glass-card markdown-body">{{ sections.social_impact | default('사회적 영향력 분석을 진행 중입니다.') | safe }}</div>
+                    <div class="bill-info-card-container">
+                        <div class="bill-info-card-content">
+                            <div class="flex flex-row items-start gap-12 flex-wrap">
+                                <div class="flex-shrink-0 ml-6">
+                                    <div class="relative flex flex-col items-center" style="width: 200px;">
+                                        <canvas id="socialImpactGauge" width="200" height="110" data-score="{{ social_impact_score if (social_impact_score is defined and social_impact_score is not none) else '' }}" style="display: block; width: 200px; height: 110px;"></canvas>
+                                        <div class="flex justify-between w-full mt-0.5 text-xs text-slate-400 font-mono">
+                                            <span>0.00</span>
+                                            <span>100.00</span>
+                                        </div>
+                                        <p id="social-impact-score-label" class="mt-3 text-sm font-medium text-slate-700 text-center w-full">사회적 영향력 점수(0~100)</p>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div id="section5-social-content" class="markdown-body text-sm leading-relaxed">{{ sections.social_impact | default('사회적 영향력 분석을 진행 중입니다.') | safe }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 
@@ -1121,15 +1360,16 @@
 
                 <div id="section6" class="section-box">
 
-                    <div class="mb-4 border-b border-slate-200 pb-4">
+                    <div class="mb-4 border-b border-slate-200 pb-3">
 
-                        <span class="text-blue-600 font-black text-xs uppercase tracking-widest">Future Response Direction & Recommendations</span>
+                        <span class="text-blue-600 font-black text-xs uppercase tracking-widest">Implications</span>
 
-                        <h2 class="text-2xl font-extrabold">향후 대응 방향 및 제언</h2>
+                        <h2 class="text-2xl font-extrabold">시사점</h2>
 
                     </div>
 
-                    <div class="glass-card markdown-body">{{ sections.next_action | default('대응 전략을 수립 중입니다.') | safe }}</div>
+                    <div id="next-action-cards-wrapper" class="flex flex-col gap-4"></div>
+                    <div class="markdown-body" id="next-action-content">{{ sections.next_action | default('대응 전략을 수립 중입니다.') | safe }}</div>
 
                 </div>
 
@@ -1139,39 +1379,49 @@
 
 
 
-        <aside class="w-[400px] hidden lg:block">
+        <!-- 플로팅 챗봇 버튼 -->
+        <button id="chatbot-toggle-btn" onclick="toggleChatbot()" class="fixed bottom-8 right-8 w-20 h-20 rounded-full shadow-2xl flex items-center justify-center z-50 transition-all hover:scale-110 overflow-hidden p-0 border-0">
+            <img id="chatbot-icon" src="/static/images/chatbot-robot-face.png" alt="Chatbot" class="w-full h-full object-cover rounded-full" />
+        </button>
 
-            <div class="sticky top-8 bg-white rounded-[2rem] shadow-2xl border border-slate-200 overflow-hidden flex flex-col" style="height: calc(100vh - 100px);">
+        <!-- 챗봇 팝업 창 -->
+        <aside id="chatbot-popup" class="fixed bottom-28 right-8 w-[380px] hidden z-50">
 
-                <div class="bg-slate-900 p-8 text-white flex items-center gap-4">
+            <div class="bg-white rounded-[1.5rem] shadow-2xl border border-slate-200 overflow-hidden flex flex-col" style="height: 500px;">
 
-                    <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xl shadow-lg text-white">L</div>
+                <div class="bg-slate-900 p-6 text-white flex items-center gap-4">
 
-                    <div>
+                    <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-lg shadow-lg text-white">L</div>
 
-                        <h3 class="font-bold text-lg leading-tight">LawDict Assistant</h3>
+                    <div class="flex-1">
+
+                        <h3 class="font-bold text-base leading-tight">LawDict Assistant</h3>
 
                         <p class="text-xs text-blue-300 font-semibold uppercase tracking-wider">AI Legal Agent</p>
 
                     </div>
 
+                    <button onclick="toggleChatbot()" class="text-white/70 hover:text-white p-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+
                 </div>
 
-                <div id="chat-messages" class="flex-1 overflow-y-auto p-6 flex flex-col gap-3 no-scrollbar bg-slate-50/30">
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 no-scrollbar bg-slate-50/30">
 
                     <div class="chat-bubble-ai">안녕하세요! 이 법안 분석 내용에 대해 궁금한 점을 물어보세요.</div>
 
                 </div>
 
-                <div class="p-8 bg-white border-t border-slate-100">
+                <div class="p-4 bg-white border-t border-slate-100">
 
                     <div class="relative">
 
-                        <input type="text" id="user-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="메시지 입력..." onkeypress="if(event.keyCode==13) sendMessage()">
+                        <input type="text" id="user-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="메시지 입력..." onkeypress="if(event.keyCode==13) sendMessage()">
 
-                        <button onclick="sendMessage()" class="absolute right-2 top-2 p-3 text-blue-600">
+                        <button onclick="sendMessage()" class="absolute right-2 top-1.5 p-2 text-blue-600">
 
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
 
                         </button>
 
@@ -1448,6 +1698,243 @@
 
         window.onload = function() {
 
+            // 원문 링크 강제 설정
+            setTimeout(function() {
+                const originalLink = document.getElementById('original-link');
+                if (originalLink) {
+                    const billId = '{{ bill_id }}';
+                    let currentHref = originalLink.getAttribute('href');
+                    console.log('[DEBUG] 원문 링크 현재 href:', currentHref);
+                    console.log('[DEBUG] bill_id:', billId);
+                    console.log('[DEBUG] bill_url (템플릿):', '{{ bill_url }}');
+                    
+                    // href가 없거나 잘못된 경우 강제 설정
+                    if (!currentHref || currentHref === '#' || currentHref === '' || currentHref.includes(window.location.hostname)) {
+                        const defaultUrl = `https://likms.assembly.go.kr/bill/billDetail.do?billId=${billId}`;
+                        originalLink.href = defaultUrl;
+                        currentHref = defaultUrl;
+                        console.log('[DEBUG] 원문 링크 강제 설정:', defaultUrl);
+                    }
+                    
+                    // 최종 확인 및 클릭 이벤트
+                    originalLink.addEventListener('click', function(e) {
+                        const url = this.href;
+                        console.log('[DEBUG] 원문 링크 클릭 시도, href:', url);
+                        
+                        if (url && url !== '#' && url.includes('likms.assembly.go.kr') && !url.includes(window.location.hostname)) {
+                            console.log('[DEBUG] 원문 링크 열기:', url);
+                            window.open(url, '_blank', 'noopener,noreferrer');
+                            e.preventDefault();
+                            return false;
+                        } else {
+                            console.log('[DEBUG] 잘못된 URL:', url);
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+                    
+                    console.log('[DEBUG] 원문 링크 최종 href:', originalLink.href);
+                } else {
+                    console.log('[DEBUG] 원문 링크 요소를 찾을 수 없습니다');
+                }
+            }, 100);
+
+            // 테이블 헤더 가운데 정렬 적용
+            setTimeout(function() {
+                document.querySelectorAll('#section3 table th, #section4 table th').forEach(function(th) {
+                    th.style.textAlign = 'center';
+                });
+            }, 100);
+
+            // section3 테이블 접기/펼치기 기능
+            setTimeout(function() {
+                const section3Table = document.querySelector('#section3 table');
+                if (section3Table) {
+                    const tbody = section3Table.querySelector('tbody');
+                    if (tbody) {
+                        const rows = tbody.querySelectorAll('tr');
+                        const hiddenRows = [];
+                        
+                        // 4번째 행(index 3)부터 숨기기
+                        rows.forEach(function(row, index) {
+                            if (index >= 3) {
+                                row.style.display = 'none';
+                                row.classList.add('hidden-row');
+                                hiddenRows.push(row);
+                            }
+                        });
+                        
+                        // 숨겨진 행이 있으면 버튼 추가
+                        if (hiddenRows.length > 0) {
+                            // 버튼 행 생성
+                            const buttonRow = document.createElement('tr');
+                            buttonRow.id = 'toggle-row-btn';
+                            const buttonCell = document.createElement('td');
+                            buttonCell.colSpan = 4;
+                            buttonCell.style.textAlign = 'center';
+                            buttonCell.style.padding = '1rem';
+                            buttonCell.style.backgroundColor = '#f8fafc';
+                            buttonCell.style.cursor = 'pointer';
+                            buttonCell.style.borderTop = '1px solid #e2e8f0';
+                            buttonCell.innerHTML = '<span style="color: #3b82f6; font-weight: 600;">더 보기 ▼</span>';
+                            buttonRow.appendChild(buttonCell);
+                            tbody.appendChild(buttonRow);
+                            
+                            let isExpanded = false;
+                            buttonCell.addEventListener('click', function() {
+                                isExpanded = !isExpanded;
+                                hiddenRows.forEach(function(row) {
+                                    row.style.display = isExpanded ? 'table-row' : 'none';
+                                });
+                                buttonCell.innerHTML = isExpanded 
+                                    ? '<span style="color: #3b82f6; font-weight: 600;">접기 ▲</span>'
+                                    : '<span style="color: #3b82f6; font-weight: 600;">더 보기 ▼</span>';
+                            });
+                        }
+                    }
+                }
+            }, 200);
+
+            // 초기 퍼센트 값 확인 및 색상 설정
+            const topProbInitial = document.getElementById('top-probability');
+            if (topProbInitial) {
+                const initialText = topProbInitial.textContent;
+                const initialPercent = parseFloat(initialText.replace('%', ''));
+                if (!isNaN(initialPercent) && initialPercent >= 60) {
+                    topProbInitial.style.color = '#ef4444'; // red-500
+                }
+            }
+
+            // 법안 요약에서 "신뢰도" 줄 제거 (DOM 후처리)
+            const summaryRoot = document.getElementById('bill-summary-content');
+            if (summaryRoot) {
+                summaryRoot.querySelectorAll('li').forEach(function(el) {
+                    if (el.textContent && el.textContent.indexOf('신뢰도') !== -1) el.remove();
+                });
+                summaryRoot.querySelectorAll('p').forEach(function(el) {
+                    var t = (el.textContent || '').trim();
+                    if (/^\s*신뢰도\s*:\s*(High|Medium|Low)\s*$/i.test(t)) el.remove();
+                });
+            }
+
+            // 법안 정보에서 설명 부분을 분리하여 "법안 요약" 카드로 이동
+            setTimeout(function() {
+                const billInfoMetadata = document.getElementById('bill-info-metadata');
+                const billSummaryCard = document.getElementById('bill-summary-card');
+                const billSummaryContent = document.getElementById('bill-summary-content-moved');
+                
+                if (billInfoMetadata && billSummaryCard && billSummaryContent) {
+                    // 메타데이터 항목들 (법안번호, 법안명 등)
+                    const metadataItems = [
+                        '법안번호', '법안명', '발의일', '소관위', '발의자',
+                        '발의자 수', '발의자 소속 정당', '제개정 구분'
+                    ];
+                    
+                    // 전체 텍스트 내용
+                    const fullText = billInfoMetadata.textContent || '';
+                    
+                    // 각 줄을 분리
+                    const textLines = fullText.split('\n').map(l => l.trim()).filter(l => l);
+                    
+                    const metadataLines = [];
+                    const summaryLines = [];
+                    
+                    textLines.forEach(function(line) {
+                        let isMetadata = false;
+                        
+                        // 메타데이터 항목인지 확인
+                        for (let item of metadataItems) {
+                            if (line.startsWith(item + ':') || line.startsWith(item + ' :')) {
+                                isMetadata = true;
+                                break;
+                            }
+                        }
+                        
+                        if (isMetadata) {
+                            metadataLines.push(line);
+                        } else if (line.length > 15) {
+                            summaryLines.push(line);
+                        }
+                    });
+                    
+                    // 메타데이터와 요약 분리
+                    if (summaryLines.length > 0) {
+                        // 메타데이터 HTML 생성 (첫 단어 굵게, 구분선 없음, 간격 축소)
+                        let metadataHtml = metadataLines.map(function(line, i) {
+                            var idx = line.indexOf(':');
+                            var label = idx >= 0 ? line.substring(0, idx).trim() : '';
+                            var value = idx >= 0 ? line.substring(idx + 1).trim() : line;
+                            var html = label ? '<span class="bill-info-label">' + label + '</span>: ' + value : line;
+                            var mb = i === metadataLines.length - 1 ? '0' : '0.35rem';
+                            return '<p style="margin-bottom: ' + mb + '; padding: 0; line-height: 1.5;">' + html + '</p>';
+                        }).join('');
+                        
+                        // 요약 HTML 생성 (구분선 없음, 간격 축소)
+                        let summaryHtml = summaryLines.map(function(line, i) {
+                            var mb = i === summaryLines.length - 1 ? '0' : '0.5rem';
+                            return '<p style="margin-bottom: ' + mb + '; padding: 0; line-height: 1.55;">' + line + '</p>';
+                        }).join('');
+                        
+                        billInfoMetadata.innerHTML = metadataHtml;
+                        billSummaryContent.innerHTML = summaryHtml;
+                        billSummaryCard.style.display = 'block';
+                    }
+                }
+            }, 300);
+
+            // 시사점 섹션을 세 개의 카드로 분리
+            setTimeout(function() {
+                const wrapper = document.getElementById('next-action-cards-wrapper');
+                const source = document.getElementById('next-action-content');
+                if (!wrapper || !source) return;
+
+                const html = source.innerHTML;
+                // <strong>...</strong>: 또는 <strong>[...]</strong>: 패턴으로 블록 제목 찾기
+                const blockRegex = /<strong[^>]*>(\[([^\]]*)\]|[^<]+)<\/strong>\s*:\s*/gi;
+                let match;
+                const blocks = [];
+                let lastIdx = 0;
+
+                while ((match = blockRegex.exec(html)) !== null) {
+                    const fullMatch = match[0];
+                    const titleContent = (match[2] != null ? match[2] : match[1]).replace(/\s+/g, ' ').trim();
+                    const title = titleContent;
+                    const start = match.index;
+                    if (blocks.length > 0) {
+                        blocks[blocks.length - 1].body = html.substring(lastIdx, start).trim();
+                    }
+                    blocks.push({ title: title, body: '' });
+                    lastIdx = match.index + fullMatch.length;
+                }
+                if (blocks.length > 0) {
+                    blocks[blocks.length - 1].body = html.substring(lastIdx).trim();
+                }
+
+                if (blocks.length === 0) {
+                    wrapper.appendChild(source.cloneNode(true));
+                    source.style.display = 'none';
+                    return;
+                }
+
+                source.style.display = 'none';
+                blocks.forEach(function(b) {
+                    const card = document.createElement('div');
+                    card.className = 'bill-info-card-container';
+                    card.innerHTML =
+                        '<div class="bill-info-card-header">' +
+                        '<h3 class="bill-info-card-title">' + escapeHtml(b.title) + '</h3>' +
+                        '</div>' +
+                        '<div class="bill-info-card-content markdown-body text-sm leading-relaxed">' + b.body + '</div>';
+                    wrapper.appendChild(card);
+                });
+            }, 350);
+
+            function escapeHtml(s) {
+                const div = document.createElement('div');
+                div.textContent = s;
+                return div.innerHTML;
+            }
+
             // 핵심 요약 리포트 제목 강조
 
             highlightReportTitle();
@@ -1536,7 +2023,15 @@
 
                 if (topProb && topPred) {
 
-                    topProb.textContent = (predictionData[0].probability * 100).toFixed(1) + '%';
+                    const probPercent = (predictionData[0].probability * 100).toFixed(1);
+                    topProb.textContent = probPercent + '%';
+                    
+                    // 60% 이상이면 빨간색으로 변경
+                    if (parseFloat(probPercent) >= 60) {
+                        topProb.style.color = '#ef4444'; // red-500
+                    } else {
+                        topProb.style.color = '#0f172a'; // slate-900 (기본값)
+                    }
 
                     topPred.textContent = predictionData[0].prediction;
 
@@ -1767,13 +2262,153 @@
 
            
 
+            // 사회적 영향력 반원 게이지 (0~점수까지 색칠)
+            function drawSocialImpactGauge() {
+                const el = document.getElementById('socialImpactGauge');
+                if (!el) return;
+
+                // 점수 추출
+                let score = NaN;
+                const ds = el.getAttribute('data-score');
+                if (ds && ds !== '') score = parseFloat(ds);
+
+                if (isNaN(score) || score < 0 || score > 100) return;
+
+                const ctx = el.getContext('2d');
+                const w = el.width;
+                const h = el.height;
+
+                const cx = w / 2;
+                const cy = h - 5;  // 반원 아래쪽 기준점
+                const r = 75;
+
+                function colorFor(s) {
+                  if (s >= 80) return '#ef4444';
+                  if (s >= 60) return '#eab308';
+                  return '#22c55e';
+                }
+          
+                // ✅ 여기서부터 핵심: "위쪽 반원"은 각도를 π → 2π 로 고정
+                const ratio = Math.max(0, Math.min(1, score / 100));
+                const start = Math.PI;                  // 왼쪽 끝
+                const endFull = 2 * Math.PI;            // 오른쪽 끝 (위쪽 반원)
+                const endScore = Math.PI + ratio * Math.PI; // score% 만큼
+          
+                ctx.clearRect(0, 0, w, h);
+          
+                // 1) 배경 반원
+                ctx.beginPath();
+                ctx.lineCap = 'round';
+                ctx.lineWidth = 14;
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.arc(cx, cy, r, start, endFull, false);
+                ctx.stroke();
+          
+                // 2) 눈금선 (0~100)
+
+          
+                // 3) ✅ 점수만큼만 채우기
+                ctx.beginPath();
+                ctx.lineCap = 'round';
+                ctx.lineWidth = 14;
+                ctx.strokeStyle = colorFor(score);
+                ctx.arc(cx, cy, r, start, endScore, false);
+                ctx.stroke();
+          
+          
+                // 5) 중앙 점수 텍스트
+                ctx.fillStyle = '#0f172a';
+                ctx.font = 'bold 28px "Noto Sans KR", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(score.toFixed(2), cx, cy - 35);
+            }   
+            setTimeout(drawSocialImpactGauge, 100);
+            setTimeout(drawSocialImpactGauge, 500);
+
             // 핵심 요약 리포트 제목 강조 (지연 실행으로 HTML 로드 후 적용)
 
             setTimeout(highlightReportTitle, 100);
 
             setTimeout(highlightReportTitle, 500); // 추가 지연으로 확실히 적용
 
-           
+            // 사회적 영향력: "사회적 영향력 점수(0~100): XX" 및 남은 숫자를 오른쪽 본문에서 완전 제거
+            function removeSocialImpactScore() {
+                const el = document.getElementById('section5-social-content');
+                if (!el) return;
+                
+                // 첫 번째 자식 노드가 텍스트이고 숫자만 있으면 제거
+                const firstChild = el.firstChild;
+                if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
+                    const text = firstChild.textContent.trim();
+                    if (/^\d+$/.test(text)) {
+                        firstChild.remove();
+                    }
+                }
+                
+                // 첫 번째 p 태그가 숫자만 있으면 제거
+                const firstP = el.querySelector('p');
+                if (firstP) {
+                    const text = firstP.textContent.trim();
+                    if (/^\d+$/.test(text)) {
+                        firstP.remove();
+                    }
+                }
+                
+                // innerHTML에서 추가 정리
+                let html = el.innerHTML;
+                html = html.replace(/<p[^>]*>\s*(<strong[^>]*>)?\s*사회적\s*영향력\s*점수[^<]*<\/p>/gi, '');
+                html = html.replace(/사회적\s*영향력\s*점수[^<]*/gi, '');
+                html = html.replace(/<p[^>]*>\s*\d+\s*<\/p>/gi, '');
+                html = html.replace(/^\s*\d+\s*<br/gi, '<br');
+                html = html.replace(/^\s*\d+\s*/g, '');
+                html = html.replace(/<p>\s*<\/p>/g, '');
+                el.innerHTML = html;
+                
+                // 다시 한번 첫 번째 텍스트 노드 확인
+                const fc = el.firstChild;
+                if (fc && fc.nodeType === Node.TEXT_NODE && /^\s*\d+\s*$/.test(fc.textContent)) {
+                    fc.remove();
+                }
+            }
+            setTimeout(removeSocialImpactScore, 100);
+            setTimeout(removeSocialImpactScore, 300);
+            setTimeout(removeSocialImpactScore, 500);
+
+            // 참고 출처 부분을 [참고 출처] 형식으로 변경하고 각 출처마다 줄바꿈
+            setTimeout(function() {
+                const section5 = document.querySelector('#section5 .markdown-body');
+                if (section5) {
+                    let html = section5.innerHTML;
+                    const originalHtml = html;
+                    
+                    // strong 태그로 감싸진 "참고 출처:" 처리
+                    html = html.replace(
+                        /<strong[^>]*>(참고\s*출처\s*:?)<\/strong>\s*:?\s*([^<]+)/gi,
+                        function(match, label, content) {
+                            let newContent = content.trim();
+                            // 출처 항목 구분: "], " 패턴으로 구분 (대괄호 닫힘 후 쉼표+공백)
+                            newContent = newContent.replace(/\],\s*/g, ']<br>');
+                            return '[참고 출처]<br>' + newContent;
+                        }
+                    );
+                    
+                    // 일반 텍스트 "참고 출처:" 처리
+                    html = html.replace(
+                        /(참고\s*출처\s*:)\s*([^<]+)/gi,
+                        function(match, label, content) {
+                            let newContent = content.trim();
+                            // 출처 항목 구분: "], " 패턴으로 구분 (대괄호 닫힘 후 쉼표+공백)
+                            newContent = newContent.replace(/\],\s*/g, ']<br>');
+                            return '[참고 출처]<br>' + newContent;
+                        }
+                    );
+                    
+                    if (html !== originalHtml) {
+                        section5.innerHTML = html;
+                    }
+                }
+            }, 500);
 
             // 섹션 제목 볼드 처리
 
@@ -1805,6 +2440,26 @@
 
 
 
+        // 대화 히스토리 관리 (전역 변수)
+        window.chatHistory = window.chatHistory || [];
+
+        // 챗봇 토글 함수
+        function toggleChatbot() {
+            const popup = document.getElementById('chatbot-popup');
+            const btn = document.getElementById('chatbot-toggle-btn');
+            const icon = document.getElementById('chatbot-icon');
+            
+            if (popup.classList.contains('hidden')) {
+                popup.classList.remove('hidden');
+                icon.innerHTML = '×';
+                btn.style.backgroundColor = '#1e40af';
+            } else {
+                popup.classList.add('hidden');
+                icon.innerHTML = 'L';
+                btn.style.backgroundColor = '';
+            }
+        }
+
         // 챗봇 메시지 전송
 
         async function sendMessage() {
@@ -1828,6 +2483,12 @@
             userBubble.textContent = message;
 
             chatMessages.appendChild(userBubble);
+            
+            // 대화 히스토리에 사용자 메시지 추가
+            window.chatHistory.push({
+                role: "user",
+                content: message
+            });
 
            
 
@@ -1889,11 +2550,35 @@
 
 
 
-            const reportContext = document.getElementById('report-summary-text').innerText;
+            const reportEl = document.getElementById('report-summary-text');
+
+            const reportContext = (reportEl && reportEl.innerText) ? reportEl.innerText : '';
+
+
+
+            function clearLoading() {
+
+                if (window.currentLoadingInterval) {
+
+                    clearInterval(window.currentLoadingInterval);
+
+                    window.currentLoadingInterval = null;
+
+                }
+
+                const loadingMsg = document.getElementById('loading-message');
+
+                if (loadingMsg) loadingMsg.remove();
+
+            }
 
 
 
             try {
+
+                const controller = new AbortController();
+
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
 
                 const response = await fetch('/api/chat', {
 
@@ -1901,77 +2586,89 @@
 
                     headers: { 'Content-Type': 'application/json' },
 
-                    body: JSON.stringify({ message: message, bill_name: "{{ bill_name }}", context: reportContext })
+                    body: JSON.stringify({ 
+                        message: message, 
+                        bill_name: "{{ bill_name }}", 
+                        context: reportContext,
+                        conversation_history: window.chatHistory.slice(0, -1)  // 현재 메시지 제외한 히스토리 전달
+                    }),
+
+                    signal: controller.signal
 
                 });
 
+                clearTimeout(timeoutId);
+
+                clearLoading();
+
+
+
+                if (!response.ok) {
+
+                    const errText = await response.text();
+
+                    console.error('Chat API error:', response.status, errText);
+
+                    const errB = document.createElement('div');
+
+                    errB.className = 'chat-bubble-ai';
+
+                    errB.style.color = '#ef4444';
+
+                    errB.style.fontWeight = '700';
+
+                    errB.textContent = '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+
+                    chatMessages.appendChild(errB);
+
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    return;
+
+                }
+
+
+
                 const result = await response.json();
 
-               
-
-                // 로딩 메시지 제거
-
-                if (window.currentLoadingInterval) {
-
-                    clearInterval(window.currentLoadingInterval);
-
-                    window.currentLoadingInterval = null;
-
-                }
-
-                const loadingMsg = document.getElementById('loading-message');
-
-                if (loadingMsg) {
-
-                    loadingMsg.remove();
-
-                }
-
-               
-
-                // 챗봇 응답 추가 (왼쪽 정렬, 연한 파란색 배경)
+                const answer = (result && result.answer != null) ? String(result.answer).trim() : '';
 
                 const aiBubble = document.createElement('div');
 
                 aiBubble.className = 'chat-bubble-ai';
 
-                aiBubble.textContent = result.answer;
+                aiBubble.textContent = answer || '답변을 생성하지 못했습니다.';
 
                 chatMessages.appendChild(aiBubble);
+                
+                // 대화 히스토리에 AI 응답 추가
+                if (answer) {
+                    window.chatHistory.push({
+                        role: "assistant",
+                        content: answer
+                    });
+                    
+                    // 히스토리가 너무 길어지지 않도록 최대 20개로 제한
+                    if (window.chatHistory.length > 20) {
+                        window.chatHistory = window.chatHistory.slice(-20);
+                    }
+                }
 
             } catch (e) {
 
-                // 로딩 메시지 제거
+                clearLoading();
 
-                if (window.currentLoadingInterval) {
+                const errBubble = document.createElement('div');
 
-                    clearInterval(window.currentLoadingInterval);
+                errBubble.className = 'chat-bubble-ai';
 
-                    window.currentLoadingInterval = null;
+                errBubble.style.color = '#ef4444';
 
-                }
+                errBubble.style.fontWeight = '700';
 
-                const loadingMsg = document.getElementById('loading-message');
+                errBubble.textContent = (e && e.name === 'AbortError') ? '요청 시간이 초과되었습니다.' : '서버 연결에 실패했습니다.';
 
-                if (loadingMsg) {
-
-                    loadingMsg.remove();
-
-                }
-
-               
-
-                const errorBubble = document.createElement('div');
-
-                errorBubble.className = 'chat-bubble-ai';
-
-                errorBubble.style.color = '#ef4444';
-
-                errorBubble.style.fontWeight = '700';
-
-                errorBubble.textContent = '서버 연결에 실패했습니다.';
-
-                chatMessages.appendChild(errorBubble);
+                chatMessages.appendChild(errBubble);
 
             }
 
