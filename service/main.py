@@ -1282,34 +1282,49 @@ async def main_page(request: Request, page: int = 1):
 
    
 
-    with engine.connect() as conn:
+    try:
+        with engine.connect() as conn:
 
-        # 전체 개수 파악
+            # 전체 개수 파악
+            try:
+                total_count = conn.execute(text("SELECT COUNT(*) FROM public.final_training_data_copy_sample10_md")).scalar()
+            except Exception as e:
+                # 테이블이 없으면 빈 결과 반환
+                print(f"[WARNING] Table not found: {e}")
+                total_count = 0
 
-        total_count = conn.execute(text("SELECT COUNT(*) FROM public.final_training_data_copy_sample10_md")).scalar()
+            total_pages = (total_count // limit) + (1 if total_count % limit > 0 else 0)
 
-        total_pages = (total_count // limit) + (1 if total_count % limit > 0 else 0)
+            # 발의일 필터 옵션: 연 2008~2026, 월 1~12, 일 1~31
+            available_years = list(range(2026, 2007, -1))  # 2026, 2025, ..., 2008
+            available_months = list(range(1, 13))          # 1~12
+            available_days = list(range(1, 32))            # 1~31
 
-        # 발의일 필터 옵션: 연 2008~2026, 월 1~12, 일 1~31
-        available_years = list(range(2026, 2007, -1))  # 2026, 2025, ..., 2008
-        available_months = list(range(1, 13))          # 1~12
-        available_days = list(range(1, 32))            # 1~31
+            # 목록 조회 (SQL 인젝션 방지를 위해 text() 사용)
+            if total_count == 0:
+                # 테이블이 없거나 데이터가 없으면 빈 결과 반환
+                latest_bills = []
+            else:
+                try:
+                    query = text("""
 
-        # 목록 조회 (SQL 인젝션 방지를 위해 text() 사용)
+                        SELECT bill_id, bill_name, proposer_name, propose_dt
 
-        query = text("""
+                        FROM public.final_training_data_copy_sample10_md
 
-            SELECT bill_id, bill_name, proposer_name, propose_dt
+                        ORDER BY propose_dt DESC, bill_id DESC
 
-            FROM public.final_training_data_copy_sample10_md
+                        LIMIT :limit OFFSET :offset
 
-            ORDER BY propose_dt DESC, bill_id DESC
+                    """)
 
-            LIMIT :limit OFFSET :offset
-
-        """)
-
-        latest_bills = pd.read_sql(query, conn, params={"limit": limit, "offset": offset}).to_dict(orient="records")
+                    latest_bills = pd.read_sql(query, conn, params={"limit": limit, "offset": offset}).to_dict(orient="records")
+                except Exception as e:
+                    # 테이블이 없으면 빈 결과 반환
+                    print(f"[WARNING] Query failed: {e}")
+                    latest_bills = []
+                    total_count = 0
+                    total_pages = 0
 
         for b in latest_bills:
             pd_val = b.get("propose_dt")
@@ -1331,25 +1346,35 @@ async def main_page(request: Request, page: int = 1):
             else:
                 b["propose_dt_str"] = ""
 
-   
+        return templates.TemplateResponse("index.html", {
 
-    return templates.TemplateResponse("index.html", {
+            "request": request,
 
-        "request": request,
+            "latest_bills": latest_bills,
 
-        "latest_bills": latest_bills,
+            "current_page": page,
 
-        "current_page": page,
+            "total_pages": total_pages,
 
-        "total_pages": total_pages,
+            "available_years": available_years,
 
-        "available_years": available_years,
+            "available_months": available_months,
 
-        "available_months": available_months,
+            "available_days": available_days,
 
-        "available_days": available_days,
-
-    })
+        })
+    except Exception as e:
+        # 전체 예외 처리: 테이블이 없거나 다른 오류 발생 시 빈 페이지 반환
+        print(f"[ERROR] Main page error: {e}")
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "latest_bills": [],
+            "current_page": 1,
+            "total_pages": 0,
+            "available_years": list(range(2026, 2007, -1)),
+            "available_months": list(range(1, 13)),
+            "available_days": list(range(1, 32)),
+        })
 
 
 
