@@ -9,8 +9,8 @@ jobs:
   preview:
     runs-on: ubuntu-latest
     
-    # 실제 데이터베이스 사용 시 PostgreSQL 서비스는 필요 없음
-    # secrets.DB_URL이 설정되어 있으면 실제 DB 사용, 없으면 테스트용 DB 사용
+    # PostgreSQL 서비스 (DB_URL이 없을 때 사용)
+    # 실제 DB_URL이 설정되어 있으면 그걸 사용하고, 없으면 이 로컬 PostgreSQL 사용
     services:
       postgres:
         image: postgres:12
@@ -25,7 +25,6 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-        if: ${{ !secrets.DB_URL }}
 
     steps:
     - uses: actions/checkout@v4
