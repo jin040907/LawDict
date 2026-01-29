@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: bill_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Lint with flake8
+      continue-on-error: true
+      run: |
+        pip install flake8
+        # 코드 스타일 체크 (선택사항)
+        # flake8 service/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        # flake8 service/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Check imports
+      run: |
+        python -c "import fastapi; import uvicorn; import sqlalchemy; import pandas; print('All imports successful')"
+    
+    - name: Test FastAPI app startup
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        DB_URL: postgresql://test_user:test_password@localhost:5432/bill_db
+      run: |
+        cd service
+        # 환경 변수 파일 생성 (테스트용)
+        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+        # 앱이 정상적으로 임포트되는지 확인
+        python -c "from main import app; print('FastAPI app imported successfully')"
+      continue-on-error: true

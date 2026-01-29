@@ -57,8 +57,8 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
 # DB 연결 설정
-
-DB_URL = "postgresql://cginside19:1234@localhost:5432/bill_db"
+# 환경 변수에서 가져오고, 없으면 기본값 사용 (로컬호스트)
+DB_URL = os.getenv("DB_URL", "postgresql://cginside19:1234@localhost:5432/bill_db")
 
 engine = create_engine(DB_URL)
 
