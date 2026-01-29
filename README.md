@@ -800,7 +800,8 @@ CREATE INDEX idx_propose_dt ON public.final_training_data_copy_sample10_md(propo
 | ------------------------ | ---- | ----------------------------------------------- | --------------------------------------- |
 | `OPENAI_API_KEY`       | ✅   | -                                               | OpenAI API 키                           |
 | `OPENAI_MODEL_PRIMARY` | ❌   | `gpt-4o-mini`                                 | 사용할 OpenAI 모델                      |
-| `DB_URL`               | ❌   | `postgresql://username:password@localhost:5432/bill_db` | PostgreSQL 데이터베이스 연결 문자열 |
+| `DB_URL`               | ✅(서비스/노트북) | -                                               | bill_db용 PostgreSQL 연결 문자열        |
+| `MEMBER_DB_URL`        | ❌   | `DB_URL`에서 `/bill_db` → `/member` 로 치환     | member DB용 연결 문자열 (data/assemble_data_final.py, 유저가 다를 때만 설정) |
 
 ### 성능 최적화
 

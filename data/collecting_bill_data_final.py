@@ -15,7 +15,7 @@
      ※ integrated가 없거나 컬럼 구조가 다르면 upsert 쿼리만 조정하면 됩니다.
 
 필수 준비
-- /home/cginside19/intern/model/.env 에 ASSEMBLY_API_KEY=... 형태로 저장
+- service/.env 또는 프로젝트 루트 .env에 DB_URL, OPEN_ASSEMBLY_API_KEY 설정
 - DB에 pgvector extension 설치되어 있어야 함(이미 vector 쓰는 상태라면 OK)
 """
 
@@ -54,10 +54,15 @@ import datetime as dt
 # (경고 대응) PYTORCH_CUDA_ALLOC_CONF → PYTORCH_ALLOC_CONF
 os.environ["PYTORCH_ALLOC_CONF"] = "expandable_segments:True"
 
-DB_URL_BILL = "postgresql://cginside19:1234@localhost:5432/bill_db"
-
-DOTENV_PATH = Path("/home/cginside19/intern/model/.env")
+# DB 및 API 키는 환경 변수 사용 (하드코딩 금지)
+DOTENV_PATH = Path(__file__).resolve().parent.parent / "service" / ".env"
+if not DOTENV_PATH.exists():
+    DOTENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=DOTENV_PATH, override=True)
+
+DB_URL_BILL = os.getenv("DB_URL")
+if not DB_URL_BILL:
+    raise RuntimeError("환경변수 DB_URL이 없습니다. service/.env 또는 상위 .env에 설정하세요.")
 
 API_KEY = os.getenv("OPEN_ASSEMBLY_API_KEY")
 if not API_KEY:

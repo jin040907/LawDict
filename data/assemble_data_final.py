@@ -1,12 +1,28 @@
+import os
 import pandas as pd
 import datetime as dt
 from sqlalchemy import create_engine, text
+from pathlib import Path
+
+# dotenv 로드 (service/.env 또는 프로젝트 루트 .env)
+try:
+    from dotenv import load_dotenv
+    for p in [Path(__file__).resolve().parent.parent / "service" / ".env",
+              Path(__file__).resolve().parent.parent / ".env"]:
+        if p.exists():
+            load_dotenv(p, override=True)
+            break
+except Exception:
+    pass
 
 # =========================
-# 0) 설정
+# 0) 설정 (환경 변수 사용)
 # =========================
-BILL_DB_URL = "postgresql://cginside19:1234@localhost:5432/bill_db"
-MEMBER_DB_URL = "postgresql://cginside19:1234@localhost:5432/member"
+# bill_db: 법안·수집 데이터용 / member: 의원·당·위원회 마스터용 (유저가 다르면 MEMBER_DB_URL 별도 설정)
+BILL_DB_URL = os.getenv("DB_URL")
+if not BILL_DB_URL:
+    raise RuntimeError("환경변수 DB_URL이 없습니다. service/.env에 설정하세요.")
+MEMBER_DB_URL = os.getenv("MEMBER_DB_URL", BILL_DB_URL.replace("/bill_db", "/member"))
 
 # 목적지 테이블을 직접 수정했습니다.
 TARGET_TABLE = "final_training_data_copy"

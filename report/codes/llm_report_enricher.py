@@ -38,8 +38,14 @@ except Exception:  # pragma: no cover
 from dotenv import load_dotenv
 from pathlib import Path
 
-DOTENV_PATH = Path("/home/cginside19/intern/model/.env")
-load_dotenv(dotenv_path=DOTENV_PATH, override=True)
+# 환경 변수 로드: report/.env, service/.env, 프로젝트 루트 .env 순으로 시도
+_here = Path(__file__).resolve().parent
+for _p in [_here.parent / ".env", _here.parent.parent / "service" / ".env", _here.parent.parent / ".env"]:
+    if _p.exists():
+        load_dotenv(dotenv_path=_p, override=True)
+        break
+else:
+    load_dotenv(override=True)
 
 # -------------------------
 # schemas (섹션별)
