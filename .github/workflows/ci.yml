@@ -69,3 +69,31 @@ jobs:
         # 앱이 정상적으로 임포트되는지 확인
         python -c "from main import app; print('FastAPI app imported successfully')"
       continue-on-error: true
+    
+    - name: Start server and test endpoints
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        DB_URL: postgresql://test_user:test_password@localhost:5432/bill_db
+      run: |
+        cd service
+        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+        # 서버를 백그라운드로 시작
+        python -m uvicorn main:app --host 0.0.0.0 --port 8888 &
+        SERVER_PID=$!
+        echo "Server started with PID: $SERVER_PID"
+        
+        # 서버가 시작될 때까지 대기
+        sleep 5
+        
+        # 헬스체크: 메인 페이지 확인
+        echo "Testing main page..."
+        curl -f http://localhost:8888/ || echo "Main page test failed"
+        
+        # API 엔드포인트 확인
+        echo "Testing API endpoint..."
+        curl -f http://localhost:8888/api/search?q=test || echo "API endpoint test failed"
+        
+        # 서버 종료
+        kill $SERVER_PID || true
+        echo "Server stopped"
+      continue-on-error: true
