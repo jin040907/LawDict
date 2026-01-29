@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import Request
 
-import openai # 혹은 사용 중인 LLM 라이브러리
+import openai
 
 import re
 
@@ -23,7 +23,6 @@ from sqlalchemy import create_engine, text
 
 import uvicorn
 
-# 1. 상단 임포트 구역
 from pydantic import BaseModel
 
 from duckduckgo_search import DDGS
@@ -38,14 +37,12 @@ from dotenv import load_dotenv
 
 import openai
 
-# ---------------------------------------------------------
 class ChatRequest(BaseModel):
     message: str
     bill_name: str = "알 수 없는 법안"
     context: str = "내용 없음"
-    conversation_history: list = []  # 대화 히스토리: [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
+    conversation_history: list = []
 
-# Load environment variables from .env file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
@@ -53,11 +50,8 @@ openai.api_key = os.getenv("OPENAI_API_KEY", "")
 
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-# Static 파일 서빙 설정
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
-# DB 연결 설정
-# 환경 변수에서 가져오고, 없으면 기본값 사용 (로컬호스트)
 DB_URL = os.getenv("DB_URL")
 if not DB_URL:
     raise RuntimeError("환경변수 DB_URL이 없습니다. service/.env에 설정하세요.")
@@ -76,14 +70,9 @@ def remove_report_titles(text: str) -> str:
 
     """
 
-    # 제목 패턴 제거 (이모지 + 제목 형식)
-
     patterns = [
-
-        r'\*\*[📋📊🔍📈💡]\s*[^\*]+\*\*\s*\n',  # **📋 제목** 형식
-
-        r'\*\*[^\*]+\*\*\s*\n',  # **제목** 형식 (이모지 없는 경우)
-
+        r'\*\*[📋📊🔍📈💡]\s*[^\*]+\*\*\s*\n',
+        r'\*\*[^\*]+\*\*\s*\n',
     ]
 
     result = text
@@ -173,17 +162,9 @@ def parse_prediction_table(md_text: str) -> list:
             })
 
         except (ValueError, IndexError):
-
             continue
 
-   
-
-    # 순위 순으로 정렬 (이미 순위대로 나올 가능성이 높지만 확실하게)
-
     predictions.sort(key=lambda x: x['rank'])
-
-    # Top 3만 반환
-
     return predictions[:3]
 
 
@@ -231,10 +212,6 @@ def split_expert_report(md_text: str) -> dict:
 
     txt = md_text.strip()
 
-   
-
-    # JSON 형식인지 확인 (첫 문자가 {)
-
     if txt.startswith('{'):
 
         try:
@@ -242,8 +219,6 @@ def split_expert_report(md_text: str) -> dict:
             data = json.loads(txt)
 
             result = {}
-
-            # JSON의 원본 내용을 가져오되, 제목 제거 함수 적용
 
             for k in keys:
 

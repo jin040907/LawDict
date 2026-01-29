@@ -37,21 +37,21 @@
 
         .glass-card { @apply bg-white rounded-xl shadow-sm border border-slate-200 p-6; }
 
-       
-
-        /* 섹션 간 간격: 첫 번째 사진의 시원한 느낌 복구 */
-
         .section-box {
-
             @apply p-8 rounded-[2rem] bg-white shadow-xl shadow-slate-900/5;
-
-            margin-bottom: 3rem;
-
+            margin-bottom: 6rem !important;
         }
-
-       
-
-        /* 내비게이션 스타일: 큼직한 텍스트와 넓은 간격 */
+        
+        div.section-box,
+        [class*="section-box"],
+        #section1.section-box,
+        #section2.section-box,
+        #section3.section-box,
+        #section4.section-box,
+        #section5.section-box,
+        #section6.section-box {
+            margin-bottom: 6rem !important;
+        }
 
         .nav-link {
 
@@ -85,11 +85,11 @@
             overflow: hidden;
         }
 
-
-
-        /* 마크다운 렌더링 스타일 보정 */
-
-        /* 본문 기본 글자 크기 통일 (제목·강조·테이블 제외) */
+        .markdown-body,
+        .glass-card.markdown-body {
+            font-size: 0.875rem;
+            line-height: 1.625;
+        }
         .markdown-body,
         .glass-card.markdown-body {
             font-size: 0.875rem;
@@ -462,6 +462,42 @@
             text-align: center !important;
             min-width: 100px !important;
             width: auto !important;
+        }
+
+        /* 데이터 기반 근거 분석: glass-card 상단 패딩 제거 (제목 구분선과 표 사이 간격 맞추기) */
+        #section3 .glass-card {
+            padding-top: 0 !important;
+        }
+        
+        /* 데이터 기반 근거 분석: 표 위쪽 마진 완전 제거 - 모든 경우 커버 */
+        #section3 .markdown-body {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
+        #section3 .markdown-body > *:first-child {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+        #section3 .markdown-body > table:first-child {
+            margin-top: 0 !important;
+        }
+        #section3 .markdown-body table {
+            margin-top: 0 !important;
+        }
+        * + #section3 .markdown-body table,
+        #section3 * + .markdown-body table,
+        #section3 .markdown-body * + table,
+        #section3 .markdown-body p + table,
+        #section3 .markdown-body div + table {
+            margin-top: 0 !important;
+        }
+        #section3 .markdown-body p:first-child {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        #section3 .markdown-body > p:first-of-type {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
         }
 
         /* 데이터 기반 근거 분석 표 전용 스타일 (4개 컬럼: 순위, 피처, 값, 해석) */
@@ -1225,7 +1261,7 @@
 
             <main>
 
-                <div id="section2" class="section-box">
+                <div id="section2" class="section-box" style="margin-bottom: 6rem !important;">
 
                     <div class="mb-4 border-b border-blue-200 pb-3">
 
@@ -1247,7 +1283,6 @@
 
                                         <canvas id="probChart"></canvas>
                                         
-                                        <!-- 차트 중앙에 표시될 퍼센트 수치 -->
                                         <div id="chart-center-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
                                             <span class="text-4xl font-black text-slate-900 tracking-tighter" id="top-probability">{{ probability }}%</span>
                                         </div>
@@ -1324,7 +1359,7 @@
 
 
 
-                <div id="section3" class="section-box">
+                <div id="section3" class="section-box" style="margin-bottom: 6rem !important;">
 
                     <div class="mb-4 border-b border-slate-200 pb-3">
 
@@ -1334,13 +1369,13 @@
 
                     </div>
 
-                    <div class="glass-card markdown-body">{{ sections.evidence | default('근거 데이터를 분석 중입니다.') | safe }}</div>
+                    <div class="glass-card markdown-body" style="margin-top: 0.5rem; padding-top: 0;">{{ sections.evidence | default('근거 데이터를 분석 중입니다.') | safe }}</div>
 
                 </div>
 
 
 
-                <div id="section4" class="section-box">
+                <div id="section4" class="section-box" style="margin-bottom: 6rem !important;">
 
                     <div class="mb-4 border-b border-slate-200 pb-3">
 
@@ -1387,9 +1422,8 @@
                         </div>
                     </div>
 
-                    <!-- 관련 뉴스 (사회적 영향력 점수 박스 아래) -->
                     {% if news_data and news_data|length > 0 %}
-                    <div class="mt-8 pt-4">
+                    <div class="mt-4 pt-2">
                         <h3 class="text-xl font-bold mb-4 text-slate-700">관련 뉴스</h3>
                         <div class="grid grid-cols-5 gap-3">
                             {% for news in news_data %}
@@ -1421,7 +1455,7 @@
 
 
 
-                <div id="section6" class="section-box">
+                <div id="section6" class="section-box" style="margin-bottom: 6rem !important;">
 
                     <div class="mb-4 border-b border-slate-200 pb-3">
 
@@ -1442,12 +1476,10 @@
 
 
 
-        <!-- 플로팅 챗봇 버튼 -->
         <button id="chatbot-toggle-btn" onclick="toggleChatbot()" class="fixed bottom-8 right-8 w-20 h-20 rounded-full shadow-2xl flex items-center justify-center z-50 transition-all hover:scale-110 overflow-hidden p-0 border-0">
             <img id="chatbot-icon" src="/static/images/chatbot-robot-face.png" alt="Chatbot" class="w-full h-full object-cover rounded-full" />
         </button>
 
-        <!-- 챗봇 팝업 창 -->
         <aside id="chatbot-popup" class="fixed bottom-28 right-8 w-[380px] hidden z-50">
 
             <div class="bg-white rounded-[1.5rem] shadow-2xl border border-slate-200 overflow-hidden flex flex-col" style="height: 500px;">
