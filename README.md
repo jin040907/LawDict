@@ -59,6 +59,11 @@ LawDict/
 │   ├── news_column.ipynb            # 뉴스 수집 노트북
 │   └── create_notebook.py           # 노트북 생성 스크립트
 │
+├── .github/workflows/                # GitHub Actions 워크플로우
+│   ├── ci.yml                        # CI 파이프라인 (자동 테스트)
+│   ├── preview.yml                   # 미리보기 워크플로우 (ngrok)
+│   └── deploy.yml                    # 배포 워크플로우
+├── requirements.txt                  # Python 의존성 목록
 ├── .gitignore                        # Git 제외 파일 목록
 └── README.md                         # 프로젝트 문서
 ```
@@ -107,6 +112,7 @@ LawDict/
 
 - **Jupyter Notebook**: 모델 학습 및 데이터 분석
 - **DuckDuckGo Search**: 웹 검색 기능 (챗봇 보조)
+- **GitHub Actions**: CI/CD 파이프라인
 
 ### 데이터베이스 스키마
 
@@ -211,18 +217,35 @@ GRANT ALL PRIVILEGES ON DATABASE bill_db TO your_username;
 
 #### 5.2 데이터베이스 연결 설정
 
-`service/main.py` 파일의 데이터베이스 연결 정보를 수정하세요:
+데이터베이스 연결은 환경 변수 `DB_URL`을 통해 설정됩니다. `service/.env` 파일에 추가하거나 환경 변수로 설정할 수 있습니다:
 
-```python
-# 기본 설정 (수정 필요)
-DB_URL = "postgresql://username:password@localhost:5432/bill_db"
+**방법 1: .env 파일 사용 (로컬 개발)**
+
+`service/.env` 파일에 추가:
+
+```env
+DB_URL=postgresql://username:password@localhost:5432/bill_db
 ```
+
+**방법 2: 환경 변수로 설정**
+
+```bash
+export DB_URL=postgresql://username:password@localhost:5432/bill_db
+```
+
+**방법 3: Render.com 사용 (클라우드 데이터베이스)**
+
+1. https://render.com 에서 PostgreSQL 데이터베이스 생성
+2. External Database URL 복사
+3. `service/.env` 또는 환경 변수에 설정
 
 **연결 문자열 형식:**
 
 ```
 postgresql://[사용자명]:[비밀번호]@[호스트]:[포트]/[데이터베이스명]
 ```
+
+**참고:** `DB_URL`이 설정되지 않으면 기본값(`postgresql://cginside19:1234@localhost:5432/bill_db`)이 사용됩니다.
 
 #### 5.3 테이블 생성
 
@@ -732,10 +755,11 @@ CREATE INDEX idx_propose_dt ON public.final_training_data_copy_sample10_md(propo
 
 ### 환경 변수
 
-| 변수명                   | 필수 | 기본값          | 설명               |
-| ------------------------ | ---- | --------------- | ------------------ |
-| `OPENAI_API_KEY`       | ✅   | -               | OpenAI API 키      |
-| `OPENAI_MODEL_PRIMARY` | ❌   | `gpt-4o-mini` | 사용할 OpenAI 모델 |
+| 변수명                   | 필수 | 기본값                                          | 설명                                    |
+| ------------------------ | ---- | ----------------------------------------------- | --------------------------------------- |
+| `OPENAI_API_KEY`       | ✅   | -                                               | OpenAI API 키                           |
+| `OPENAI_MODEL_PRIMARY` | ❌   | `gpt-4o-mini`                                 | 사용할 OpenAI 모델                      |
+| `DB_URL`               | ❌   | `postgresql://cginside19:1234@localhost:5432/bill_db` | PostgreSQL 데이터베이스 연결 문자열 |
 
 ### 성능 최적화
 
@@ -793,6 +817,41 @@ pytest tests/
 
 ## 📦 배포
 
+### GitHub Actions를 통한 테스트 및 미리보기
+
+프로젝트에는 GitHub Actions 워크플로우가 포함되어 있습니다:
+
+#### CI 파이프라인 (`ci.yml`)
+
+- **트리거**: `main`, `master`, `develop` 브랜치에 push 또는 PR 생성 시
+- **기능**:
+  - Python 환경 설정
+  - 의존성 설치
+  - 코드 린트 체크
+  - FastAPI 앱 임포트 테스트
+  - 웹사이트 엔드포인트 테스트
+
+#### Preview 워크플로우 (`preview.yml`)
+
+- **트리거**: 수동 실행 (`workflow_dispatch`) 또는 PR 생성 시
+- **기능**:
+  - 서버 시작 및 테스트
+  - ngrok을 통한 외부 접근 URL 생성 (수동 실행 시)
+  - 최대 1시간 동안 서버 실행
+
+**사용 방법:**
+
+1. GitHub 저장소 > **Actions** 탭
+2. **Preview Website** 워크플로우 선택
+3. **Run workflow** 클릭
+4. 실행 후 **"Setup and start ngrok tunnel"** 단계에서 공개 URL 확인
+
+**필수 GitHub Secrets:**
+
+- `OPENAI_API_KEY`: OpenAI API 키
+- `DB_URL`: PostgreSQL 데이터베이스 연결 문자열 (선택사항)
+- `NGROK_AUTH_TOKEN`: ngrok 인증 토큰 (외부 접근용, 선택사항)
+
 ### Docker 배포 (예정)
 
 ```dockerfile
@@ -828,6 +887,14 @@ CMD ["uvicorn", "service.main:app", "--host", "0.0.0.0", "--port", "8888"]
 
 ## 📝 변경 이력
 
+### v1.1.0 (2026-01)
+
+- GitHub Actions CI/CD 파이프라인 추가
+- 환경 변수 기반 데이터베이스 연결 설정
+- Render.com PostgreSQL 지원
+- 테이블 없을 때 예외 처리 개선
+- ngrok을 통한 외부 접근 지원
+
 ### v1.0.0 (2026)
 
 - 초기 릴리스
@@ -849,8 +916,8 @@ CMD ["uvicorn", "service.main:app", "--host", "0.0.0.0", "--port", "8888"]
 - [ ] 리포트 PDF 다운로드
 - [ ] 알림 기능
 - [ ] API 문서 자동 생성 (Swagger/OpenAPI)
+- [x] CI/CD 파이프라인 구축 (GitHub Actions)
 - [ ] 단위 테스트 및 통합 테스트 추가
-- [ ] CI/CD 파이프라인 구축
 
 ## 📚 추가 자료
 
@@ -878,7 +945,11 @@ A: 법안당 약 10-30초 정도 소요됩니다. OpenAI API 응답 시간에 �
 
 ### Q: 데이터베이스에 데이터가 없으면 어떻게 하나요?
 
-A: 먼저 데이터를 데이터베이스에 로드해야 합니다. 모델 학습 및 리포트 생성 노트북을 실행하면 데이터가 생성됩니다.
+A: 먼저 데이터를 데이터베이스에 로드해야 합니다. 모델 학습 및 리포트 생성 노트북을 실행하면 데이터가 생성됩니다. 테이블이 없거나 데이터가 없어도 애플리케이션은 정상적으로 실행되며 빈 결과를 반환합니다.
+
+### Q: GitHub Actions에서 데이터베이스 연결이 안 되면?
+
+A: GitHub Secrets에 `DB_URL`을 설정하세요. Render.com 등의 클라우드 데이터베이스를 사용하는 것을 권장합니다. `DB_URL`이 없으면 테스트용 로컬 PostgreSQL 컨테이너가 사용됩니다 (빈 데이터베이스).
 
 ### Q: 챗봇이 답변을 하지 않으면?
 
