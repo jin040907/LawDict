@@ -43,12 +43,17 @@ LawDict는 머신러닝과 AI를 활용하여 법안의 처리 결과를 예측�
 
 ```
 LawDict/
+├── data/                             # 법안 데이터 수집·통합
+│   ├── collecting_bill_data_final.py # 의안 수집 스크립트 (국회 API·크롤링)
+│   └── assemble_data_final.py       # 수집 데이터 통합·적재 스크립트
+│
 ├── service/                          # FastAPI 웹 서버
 │   ├── main.py                      # 메인 애플리케이션 파일
 │   ├── .env                         # 환경 변수 설정 파일 (gitignore)
+│   ├── static/images/               # 정적 자원 (챗봇 아이콘 등)
 │   └── templates/                   # HTML 템플릿
 │       ├── index.html               # 법안 목록 페이지 (검색, 필터링)
-│       └── detail.html               # 법안 상세 페이지 (리포트, 챗봇)
+│       └── detail.html              # 법안 상세 페이지 (리포트, 챗봇)
 │
 ├── model/                            # 머신러닝 모델 관련
 │   ├── model_final.ipynb            # 모델 학습/평가 노트북
@@ -57,7 +62,15 @@ LawDict/
 ├── report/                           # 리포트 생성 관련
 │   ├── ai_report_column.ipynb       # AI 리포트 생성 노트북
 │   ├── news_column.ipynb            # 뉴스 수집 노트북
-│   └── create_notebook.py           # 노트북 생성 스크립트
+│   ├── news_column_gpt.ipynb        # GPT 기반 뉴스 수집 노트북
+│   └── codes/                       # 리포트 생성 모듈
+│       ├── generate_sample_report_llm.py
+│       ├── llm_report_enricher.py
+│       ├── make_sample_input.py
+│       ├── model_runtime.py
+│       ├── report_builder_with_llm.py
+│       ├── report_insights.py
+│       └── similar_cases_pgvector.py
 │
 ├── .github/workflows/                # GitHub Actions 워크플로우
 │   ├── ci.yml                        # CI 파이프라인 (자동 테스트)
@@ -70,18 +83,23 @@ LawDict/
 
 ### 디렉토리 설명
 
+- **data/**: 법안 데이터 수집 및 통합
+
+  - `collecting_bill_data_final.py`: 국회 API·크롤링 기반 의안 수집, 임베딩(bge-m3)·pgvector 적재
+  - `assemble_data_final.py`: 수집 데이터 통합 및 학습/서비스용 테이블 적재
 - **service/**: FastAPI 기반 웹 서버 코드
 
   - `main.py`: 모든 API 엔드포인트와 비즈니스 로직 포함
   - `templates/`: Jinja2 템플릿으로 렌더링되는 HTML 페이지
+  - `static/images/`: 챗봇 아이콘 등 정적 자원
 - **model/**: 머신러닝 모델 학습 및 평가
 
   - CatBoost 분류 모델 사용
   - 법안 처리 결과 8개 클래스 예측
 - **report/**: 리포트 생성 및 데이터 처리
 
-  - AI 리포트 자동 생성
-  - 뉴스 데이터 수집 및 저장
+  - AI 리포트 자동 생성 (`ai_report_column.ipynb`, `codes/` 모듈)
+  - 뉴스 데이터 수집 (`news_column.ipynb`, `news_column_gpt.ipynb`)
 
 ## 🛠 기술 스택
 
@@ -408,6 +426,25 @@ uvicorn main:app --port 8000
 
 ## 🤖 모델 학습 및 데이터 처리
 
+### 데이터 수집
+
+법안 원시 데이터를 수집하고 통합합니다.
+
+```bash
+cd data
+# 1) 의안 수집 (국회 API·크롤링, 임베딩·pgvector 적재)
+python collecting_bill_data_final.py
+# 2) 수집 데이터 통합 및 학습/서비스용 테이블 적재
+python assemble_data_final.py
+```
+
+**데이터 수집 프로세스:**
+
+1. **collecting_bill_data_final.py**: 국회 API(ALLBILL 단건조회) 및 크롤링으로 의안 수집, bge-m3 임베딩 후 pgvector(staging/integrated) 적재
+2. **assemble_data_final.py**: 수집 데이터를 통합하여 학습·서비스용 최종 테이블에 적재
+
+**필수 준비:** `ASSEMBLY_API_KEY`(국회 API), DB에 pgvector extension 설치, `.env`에 DB 연결 정보 설정
+
 ### 모델 학습
 
 법안 처리 결과 예측 모델을 학습합니다.
@@ -442,6 +479,8 @@ cd report
 jupyter notebook ai_report_column.ipynb
 ```
 
+리포트 생성 로직은 `report/codes/` 모듈(LLM 리포트 빌더, 유사 사례 pgvector 검색 등)을 사용하며, 노트북에서 호출합니다.
+
 **리포트 생성 프로세스:**
 
 1. 데이터베이스에서 법안 데이터 로드
@@ -472,12 +511,14 @@ jupyter notebook ai_report_column.ipynb
 ```bash
 cd report
 jupyter notebook news_column.ipynb
+# 또는 GPT 기반 뉴스 수집
+jupyter notebook news_column_gpt.ipynb
 ```
 
 **뉴스 수집 프로세스:**
 
 1. 리포트의 "유사 사례 비교 분석" 섹션에서 키워드 추출
-2. 딥서치뉴스 API를 사용하여 뉴스 검색
+2. 딥서치뉴스 API(또는 GPT 기반)를 사용하여 뉴스 검색
 3. 발의일 기준 전후 6개월 범위로 검색
 4. 최대 10개 뉴스 수집
 5. JSON 형식으로 데이터베이스의 `news` 컬럼에 저장
@@ -945,7 +986,7 @@ A: 법안당 약 10-30초 정도 소요됩니다. OpenAI API 응답 시간에 �
 
 ### Q: 데이터베이스에 데이터가 없으면 어떻게 하나요?
 
-A: 먼저 데이터를 데이터베이스에 로드해야 합니다. 모델 학습 및 리포트 생성 노트북을 실행하면 데이터가 생성됩니다. 테이블이 없거나 데이터가 없어도 애플리케이션은 정상적으로 실행되며 빈 결과를 반환합니다.
+A: 먼저 `data/`의 수집·통합 스크립트(`collecting_bill_data_final.py`, `assemble_data_final.py`)를 실행해 원시 데이터를 적재한 뒤, 모델 학습 및 리포트 생성 노트북을 실행하세요. 테이블이 없거나 데이터가 없어도 애플리케이션은 정상적으로 실행되며 빈 결과를 반환합니다.
 
 ### Q: GitHub Actions에서 데이터베이스 연결이 안 되면?
 
