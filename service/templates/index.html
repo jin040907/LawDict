@@ -87,10 +87,10 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto mt-10 md:mt-16 px-4 md:px-8 pb-16">
         <!-- Header Section -->
-        <div class="mb-10 md:mb-14">
-            <div class="section-divider pl-6 md:pl-8 mb-4">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">실시간 분석 진행 중인 법안</h2>
-                <p class="text-gray-600 text-base md:text-lg font-medium ml-1">AI 기반 입법 분석 리포트를 확인하세요</p>
+        <div class="mb-4 md:mb-6">
+            <div class="section-divider pl-6 md:pl-8 mb-2">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight mb-1">실시간 분석 진행 중인 법안</h2>
+                <p class="text-gray-600 text-sm md:text-base font-medium ml-1">AI 기반 입법 분석 리포트를 확인하세요</p>
             </div>
         </div>
 
@@ -228,15 +228,15 @@
                 <table class="w-full">
                     <thead>
                         <tr class="bg-gradient-to-r from-blue-700 via-blue-800 to-blue-700">
-                            <th class="px-6 md:px-8 py-5 font-bold text-sm md:text-base text-white text-left tracking-wide">법안명</th>
-                            <th class="px-6 md:px-8 py-5 font-bold text-sm md:text-base text-white text-left tracking-wide whitespace-nowrap">발의자</th>
-                            <th class="px-6 md:px-8 py-5 font-bold text-sm md:text-base text-white text-center tracking-wide whitespace-nowrap">분석 보고서</th>
+                            <th class="px-6 md:px-8 py-3 font-bold text-sm md:text-base text-white text-left tracking-wide">법안명</th>
+                            <th class="px-6 md:px-8 py-3 font-bold text-sm md:text-base text-white text-left tracking-wide whitespace-nowrap">발의자</th>
+                            <th class="px-6 md:px-8 py-3 font-bold text-sm md:text-base text-white text-center tracking-wide whitespace-nowrap">분석 보고서</th>
                         </tr>
                     </thead>
                     <tbody id="billTableBody" class="divide-y divide-gray-100">
                         {% for bill in latest_bills %}
                         <tr class="bill-row table-row-hover bg-white hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-sky-50/50" data-bill-name="{{ bill.bill_name|lower }}" data-proposer-name="{{ bill.proposer_name|lower }}" data-propose-dt="{{ bill.propose_dt_str|default('') }}" data-bill-id="{{ bill.bill_id }}">
-                            <td class="px-6 md:px-8 py-6">
+                            <td class="px-6 md:px-8 py-3">
                                 <div class="font-semibold text-gray-900 text-base md:text-lg group-hover:text-blue-800 transition-colors bill-name-hover cursor-pointer relative" 
                                      data-bill-name="{{ bill.bill_name }}"
                                      data-proposer-name="{{ bill.proposer_name }}"
@@ -245,7 +245,7 @@
                                     {{ bill.bill_name }}
                                 </div>
                             </td>
-                            <td class="px-6 md:px-8 py-6">
+                            <td class="px-6 md:px-8 py-3">
                                 <div class="flex items-center gap-2.5 text-gray-700 group-hover:text-blue-700 transition-colors whitespace-nowrap">
                                     <div class="bg-blue-100 p-1.5 rounded-lg flex-shrink-0">
                                         <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,8 +255,8 @@
                                     <span class="font-medium text-sm md:text-base">{{ bill.proposer_name }}</span>
                                 </div>
                             </td>
-                            <td class="px-6 md:px-8 py-6 text-center">
-                                <a href="/bill/{{ bill.bill_id }}" class="btn-primary inline-flex items-center gap-2.5 text-white px-6 py-3 rounded-xl text-sm md:text-base font-semibold shadow-lg whitespace-nowrap">
+                            <td class="px-6 md:px-8 py-3 text-center">
+                                <a href="/bill/{{ bill.bill_id }}" class="btn-primary inline-flex items-center gap-2.5 text-white px-5 py-2 rounded-xl text-sm md:text-base font-semibold shadow-lg whitespace-nowrap">
                                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
@@ -344,6 +344,10 @@
             </a>
         </div>
     </div>
+
+    <footer class="text-center py-20 text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">
+        <p>© 2026 LawDict AI Legislative Platform | Project by CG INSIDE</p>
+    </footer>
 
     <script>
         const searchInput = document.getElementById('billSearch');
@@ -574,7 +578,7 @@
                         row.setAttribute('data-bill-id', billId);
                         
                         row.innerHTML = `
-                            <td class="px-6 md:px-8 py-6">
+                            <td class="px-6 md:px-8 py-3">
                                 <div class="font-semibold text-gray-900 text-base md:text-lg group-hover:text-blue-800 transition-colors bill-name-hover cursor-pointer relative" 
                                      data-bill-name="${billName}"
                                      data-proposer-name="${proposerName}"
@@ -583,7 +587,7 @@
                                     ${billName}
                                 </div>
                             </td>
-                            <td class="px-6 md:px-8 py-6">
+                            <td class="px-6 md:px-8 py-3">
                                 <div class="flex items-center gap-2.5 text-gray-700 group-hover:text-blue-700 transition-colors whitespace-nowrap">
                                     <div class="bg-blue-100 p-1.5 rounded-lg flex-shrink-0">
                                         <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -593,8 +597,8 @@
                                     <span class="font-medium text-sm md:text-base">${proposerName}</span>
                                 </div>
                             </td>
-                            <td class="px-6 md:px-8 py-6 text-center">
-                                <a href="/bill/${billId}" class="btn-primary inline-flex items-center gap-2.5 text-white px-6 py-3 rounded-xl text-sm md:text-base font-semibold shadow-lg whitespace-nowrap">
+                            <td class="px-6 md:px-8 py-3 text-center">
+                                <a href="/bill/${billId}" class="btn-primary inline-flex items-center gap-2.5 text-white px-5 py-2 rounded-xl text-sm md:text-base font-semibold shadow-lg whitespace-nowrap">
                                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>

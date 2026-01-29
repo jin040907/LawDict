@@ -1276,7 +1276,7 @@ async def search_bills(
 
 async def main_page(request: Request, page: int = 1):
 
-    limit = 5
+    limit = 10
 
     offset = (page - 1) * limit
 

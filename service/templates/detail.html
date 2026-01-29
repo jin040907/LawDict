@@ -957,9 +957,14 @@
             transition: all 0.3s ease;
         }
 
-        /* 사회적 영향력 분석 카드: 내용 아래 여백 확대 */
+        /* AI 모델 예측 및 분석 카드: 위·아래 여백 다른 박스와 비슷하게 */
+        #section2 .bill-info-card-container {
+            padding: 1.5rem 1.5rem;
+        }
+
+        /* 사회적 영향력 분석 카드: 위·아래 여백 같게 */
         #section5 .bill-info-card-container {
-            padding-bottom: 2rem;
+            padding: 2rem 1.5rem;
         }
 
         /* 법안 정보·법안 요약 카드: 내용 아래 여백 확대 */
@@ -1027,28 +1032,43 @@
             display: none !important;
         }
 
-        /* 시사점 카드: 크기·여백 통일 */
+        /* 시사점 카드: 줄글 바로 아래 여백 동일, 카드 높이는 내용 기준 유동 */
+        #next-action-cards-wrapper {
+            padding-bottom: 2rem;
+            overflow: hidden;
+        }
         #next-action-cards-wrapper .bill-info-card-container {
-            padding: 1.25rem 1.5rem;
-            min-height: 200px;
+            padding: 1.25rem 1.5rem 0 1.5rem;
+            margin-bottom: 2rem;
             display: flex;
             flex-direction: column;
+        }
+        #next-action-cards-wrapper .bill-info-card-container:last-child {
+            margin-bottom: 0;
         }
         #next-action-cards-wrapper .bill-info-card-header {
             margin-bottom: 1rem;
             flex-shrink: 0;
         }
         #next-action-cards-wrapper .bill-info-card-content {
-            flex: 1;
             display: flex;
             flex-direction: column;
+            flex: 1;
             padding: 0;
         }
-        #next-action-cards-wrapper .bill-info-card-content p {
-            margin-bottom: 0.4rem;
+        #next-action-cards-wrapper .implication-card-spacer {
+            height: 1rem;
+            min-height: 1rem;
+            flex-shrink: 0;
+        }
+        #next-action-cards-wrapper .bill-info-card-content p,
+        #next-action-cards-wrapper .bill-info-card-content .markdown-body p {
+            margin-bottom: 0.3rem !important;
+            line-height: 1.45 !important;
         }
         #next-action-cards-wrapper .bill-info-card-content p:last-child,
-        #next-action-cards-wrapper .bill-info-card-content > *:last-child {
+        #next-action-cards-wrapper .bill-info-card-content > *:last-child,
+        #next-action-cards-wrapper .bill-info-card-content .markdown-body p:last-child {
             margin-bottom: 0 !important;
         }
 
@@ -1217,9 +1237,9 @@
 
                     <div class="bill-info-card-container">
                         <div class="bill-info-card-content">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start" style="grid-template-columns: 1fr 1.5fr;">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center" style="grid-template-columns: 1fr 1.5fr;">
 
-                                <div class="flex flex-col items-center justify-center px-4 mx-auto max-w-sm">
+                                <div class="flex flex-col items-center justify-center px-4 mx-auto max-w-sm py-4">
 
                                     <p class="text-[10px] font-black text-slate-400 mb-6 uppercase tracking-widest">PREDICTION PROBABILITY</p>
 
@@ -1264,7 +1284,7 @@
 
                                     <h4 class="section-subtitle mt-6 mb-1 text-base">주요 내용</h4>
 
-                                    <div class="text-sm leading-relaxed" style="word-break: keep-all; overflow-wrap: break-word;">{{ main_content_html | safe }}</div>
+                                    <div class="text-sm leading-relaxed mb-4" style="word-break: keep-all; overflow-wrap: break-word;">{{ main_content_html | safe }}</div>
 
                                     {% endif %}
 
@@ -1348,9 +1368,10 @@
 
                     <div class="bill-info-card-container">
                         <div class="bill-info-card-content">
-                            <div class="flex flex-row items-start gap-12 flex-wrap">
-                                <div class="flex-shrink-0 ml-6">
+                            <div class="flex flex-row items-center gap-12 flex-wrap">
+                                <div class="flex-shrink-0 min-w-[300px] ml-6 py-4 flex justify-center">
                                     <div class="relative flex flex-col items-center" style="width: 200px;">
+                                        <p class="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-widest w-full text-center">SOCIAL IMPACT SCORE</p>
                                         <canvas id="socialImpactGauge" width="200" height="110" data-score="{{ social_impact_score if (social_impact_score is defined and social_impact_score is not none) else '' }}" style="display: block; width: 200px; height: 110px;"></canvas>
                                         <div class="flex justify-between w-full mt-0.5 text-xs text-slate-400 font-mono">
                                             <span>0.00</span>
@@ -1410,7 +1431,7 @@
 
                     </div>
 
-                    <div id="next-action-cards-wrapper" class="flex flex-col gap-4"></div>
+                    <div id="next-action-cards-wrapper" class="flex flex-col"></div>
                     <div class="markdown-body" id="next-action-content">{{ sections.next_action | default('대응 전략을 수립 중입니다.') | safe }}</div>
 
                 </div>
@@ -1967,7 +1988,20 @@
                         '<h3 class="bill-info-card-title">' + escapeHtml(b.title) + '</h3>' +
                         '</div>' +
                         '<div class="bill-info-card-content markdown-body text-sm leading-relaxed">' + b.body + '</div>';
+                    const contentDiv = card.querySelector('.bill-info-card-content');
+                    if (contentDiv) {
+                        const spacer = document.createElement('div');
+                        spacer.className = 'implication-card-spacer';
+                        spacer.setAttribute('style', 'height: 1rem; min-height: 1rem; flex-shrink: 0;');
+                        contentDiv.appendChild(spacer);
+                    }
                     wrapper.appendChild(card);
+                });
+                requestAnimationFrame(function() {
+                    const cards = wrapper.querySelectorAll('.bill-info-card-container');
+                    let maxH = 0;
+                    cards.forEach(function(c) { maxH = Math.max(maxH, c.offsetHeight); });
+                    cards.forEach(function(c) { c.style.minHeight = maxH + 'px'; });
                 });
             }, 350);
 
