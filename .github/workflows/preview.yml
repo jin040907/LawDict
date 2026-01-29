@@ -51,9 +51,9 @@ jobs:
         echo "=========================================="
         echo "🔍 데이터베이스 연결 정보 확인"
         echo "=========================================="
-        if [ -n "${{ secrets.DB_URL }}" ]; then
-          echo "✅ 실제 데이터베이스 사용: ${{ secrets.DB_URL }}"
-          DB_HOST=$(echo "${{ secrets.DB_URL }}" | sed -n 's/.*@\([^:]*\):.*/\1/p')
+        if [ -n "$DB_URL" ] && [ "$DB_URL" != "postgresql://test_user:test_password@localhost:5432/bill_db" ]; then
+          echo "✅ 실제 데이터베이스 사용"
+          DB_HOST=$(echo "$DB_URL" | sed -n 's/.*@\([^:]*\):.*/\1/p')
           echo "   호스트: $DB_HOST"
         else
           echo "⚠️  실제 DB_URL이 설정되지 않음"

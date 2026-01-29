@@ -33,6 +33,10 @@ catboost_info/
 # Logs
 *.log
 
+# Database backups
+*.sql
+*.sql.gz
+
 # OS
 .DS_Store
 Thumbs.db
