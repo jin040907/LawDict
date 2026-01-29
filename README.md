@@ -367,28 +367,34 @@ uvicorn main:app --port 8000
 3. **주요 섹션**:
 
    **#1 AI 모델 예측 및 분석**
+
    - 예측 확률 도넛 차트 (Top 3 예측 결과)
    - 모델 예측 결과 상세 설명
    - 핵심 요약 리포트
 
    **#2 법안 정보 및 요약**
+
    - 법안 요약 정보
    - 입력 법안 메타데이터
 
    **#3 데이터 기반 근거 분석**
+
    - 예측 근거 데이터 테이블
    - 피처별 기여도 분석
 
    **#4 유사 법안 비교 분석**
+
    - 유사 법안 비교 테이블
    - 유사도 점수 및 핵심 차이점
    - 관련 뉴스 (최대 10개)
 
    **#5 사회적 영향력 분석**
+
    - 법안의 사회적 영향 분석
    - 이해관계자 영향 평가
 
    **#6 향후 대응 방향 및 제언**
+
    - 대응 전략 제안
    - 권장 사항
 
@@ -430,6 +436,7 @@ python assemble_data_final.py
 2. **assemble_data_final.py**: 수집 데이터를 통합하여 학습·서비스용 최종 테이블에 적재
 
 **필수 준비사항:**
+
 - `ASSEMBLY_API_KEY`: 국회 API 키
 - PostgreSQL에 pgvector extension 설치
 - `.env` 파일에 DB 연결 정보 설정
@@ -488,6 +495,7 @@ jupyter notebook ai_report_column.ipynb
 - 6. 향후 대응 방향 및 제언 (next_action)
 
 **주의사항:**
+
 - OpenAI API 사용량 및 비용 관리 필요
 - 리포트 생성에는 법안당 약 10-30초 소요
 - API 레이트 리밋을 고려하여 적절한 딜레이 설정 권장
@@ -784,12 +792,12 @@ CREATE INDEX idx_propose_dt ON public.final_training_data_copy_sample10_md(propo
 
 ### 환경 변수
 
-| 변수명                   | 필수 | 기본값                                          | 설명                                    |
-| ------------------------ | ---- | ----------------------------------------------- | --------------------------------------- |
-| `OPENAI_API_KEY`       | ✅   | -                                               | OpenAI API 키                           |
-| `OPENAI_MODEL_PRIMARY` | ❌   | `gpt-4o-mini`                                 | 사용할 OpenAI 모델                      |
-| `DB_URL`               | ✅(서비스/노트북) | -                                               | bill_db용 PostgreSQL 연결 문자열        |
-| `MEMBER_DB_URL`        | ❌   | `DB_URL`에서 `/bill_db` → `/member` 로 치환     | member DB용 연결 문자열 (data/assemble_data_final.py, 유저가 다를 때만 설정) |
+| 변수명                   | 필수 | 기본값                                             | 설명                                                                         |
+| ------------------------ | ---- | -------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `OPENAI_API_KEY`       | ✅   | -                                                  | OpenAI API 키                                                                |
+| `OPENAI_MODEL_PRIMARY` | ❌   | `gpt-4o-mini`                                    | 사용할 OpenAI 모델                                                           |
+| `DB_URL`               | ✅   | -                                                  | bill_db용 PostgreSQL 연결 문자열                                             |
+| `MEMBER_DB_URL`        | ❌   | `DB_URL`에서 `/bill_db` → `/member` 로 치환 | member DB용 연결 문자열 (data/assemble_data_final.py, 유저가 다를 때만 설정) |
 
 ### 성능 최적화
 
@@ -939,7 +947,7 @@ Docker 배포는 향후 지원 예정입니다.
 - [ ] 리포트 PDF 다운로드
 - [ ] 알림 기능
 - [ ] API 문서 자동 생성 (Swagger/OpenAPI)
-- [x] CI/CD 파이프라인 구축 (GitHub Actions)
+- [X] CI/CD 파이프라인 구축 (GitHub Actions)
 - [ ] 단위 테스트 및 통합 테스트 추가
 
 ## 추가 자료
@@ -961,10 +969,6 @@ Docker 배포는 향후 지원 예정입니다.
 ### Q: 모델 예측 정확도는 얼마인가요?
 
 A: 모델 성능은 학습 데이터와 평가 지표에 따라 다릅니다. `model/model_final.ipynb`에서 확인할 수 있습니다.
-
-### Q: 리포트 생성에 시간이 얼마나 걸리나요?
-
-A: 법안당 약 10-30초 정도 소요됩니다. OpenAI API 응답 시간에 따라 달라질 수 있습니다.
 
 ### Q: 데이터베이스에 데이터가 없으면 어떻게 하나요?
 
