@@ -61,7 +61,7 @@ jobs:
     - name: Test FastAPI app startup
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        DB_URL: postgresql://test_user:test_password@localhost:5432/bill_db
+        DB_URL: ${{ secrets.DB_URL || 'postgresql://test_user:test_password@localhost:5432/bill_db' }}
       run: |
         cd service
         # 환경 변수 파일 생성 (테스트용)
@@ -73,7 +73,7 @@ jobs:
     - name: Start server and test endpoints
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        DB_URL: postgresql://test_user:test_password@localhost:5432/bill_db
+        DB_URL: ${{ secrets.DB_URL || 'postgresql://test_user:test_password@localhost:5432/bill_db' }}
       run: |
         cd service
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env

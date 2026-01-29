@@ -9,6 +9,8 @@ jobs:
   preview:
     runs-on: ubuntu-latest
     
+    # 실제 데이터베이스 사용 시 PostgreSQL 서비스는 필요 없음
+    # secrets.DB_URL이 설정되어 있으면 실제 DB 사용, 없으면 테스트용 DB 사용
     services:
       postgres:
         image: postgres:12
@@ -23,6 +25,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+        if: ${{ !secrets.DB_URL }}
 
     steps:
     - uses: actions/checkout@v4
@@ -40,25 +43,31 @@ jobs:
     - name: Start server
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        DB_URL: postgresql://test_user:test_password@localhost:5432/bill_db
+        DB_URL: ${{ secrets.DB_URL || 'postgresql://test_user:test_password@localhost:5432/bill_db' }}
       run: |
         cd service
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+        echo "DB_URL=${{ secrets.DB_URL || 'postgresql://test_user:test_password@localhost:5432/bill_db' }}" >> .env
         # 서버 시작 (백그라운드)
         nohup python -m uvicorn main:app --host 0.0.0.0 --port 8888 > server.log 2>&1 &
         echo $! > server.pid
         sleep 10
         echo "Server started"
+        echo "Using DB_URL: ${{ secrets.DB_URL || 'postgresql://test_user:test_password@localhost:5432/bill_db' }}"
     
     - name: Setup and start ngrok tunnel
       if: github.event_name == 'workflow_dispatch'
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
       run: |
+        echo "=========================================="
+        echo "🔧 ngrok 설정 단계 시작"
+        echo "=========================================="
+        
         if [ -z "$NGROK_AUTH_TOKEN" ]; then
-          echo "=========================================="
+          echo ""
           echo "⚠️  NGROK_AUTH_TOKEN이 설정되지 않았습니다."
-          echo "=========================================="
+          echo ""
           echo "외부 접근을 위해서는 ngrok 토큰이 필요합니다."
           echo ""
           echo "설정 방법:"
@@ -69,9 +78,15 @@ jobs:
           echo ""
           echo "현재 서버는 내부에서만 접근 가능합니다:"
           echo "http://localhost:8888"
+          echo ""
+          echo "=========================================="
+          echo "이 단계를 완료하려면 NGROK_AUTH_TOKEN을 설정하세요."
           echo "=========================================="
           exit 0
         fi
+        
+        echo "✅ NGROK_AUTH_TOKEN이 설정되어 있습니다."
+        echo ""
         
         echo "Downloading ngrok..."
         wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
@@ -99,15 +114,30 @@ jobs:
         done
         
         if [ -n "$NGROK_URL" ]; then
+          echo ""
           echo "=========================================="
-          echo "🌐 PUBLIC WEBSITE URL: $NGROK_URL"
+          echo "🌐🌐🌐 PUBLIC WEBSITE URL 🌐🌐🌐"
           echo "=========================================="
+          echo ""
+          echo "  $NGROK_URL"
+          echo ""
+          echo "=========================================="
+          echo "위 URL을 복사하여 브라우저에서 접속하세요!"
+          echo "=========================================="
+          echo ""
           echo "NGROK_URL=$NGROK_URL" >> $GITHUB_ENV
           echo "::notice title=🌐 Website URL::Access your website at: $NGROK_URL"
           echo "::warning title=Website URL::Public URL: $NGROK_URL"
         else
-          echo "Failed to get ngrok URL. Check ngrok.log:"
+          echo ""
+          echo "=========================================="
+          echo "⚠️  ngrok URL을 가져오지 못했습니다"
+          echo "=========================================="
+          echo "ngrok.log 내용:"
           cat ngrok.log || echo "No ngrok.log found"
+          echo ""
+          echo "ngrok API 응답:"
+          curl -s http://localhost:4040/api/tunnels || echo "ngrok API 접근 실패"
         fi
     
     - name: Test website endpoints
@@ -154,18 +184,32 @@ jobs:
       env:
         NGROK_URL: ${{ env.NGROK_URL }}
       run: |
+        echo ""
+        echo "=========================================="
+        echo "🚀 서버 실행 중..."
         echo "=========================================="
         if [ -n "$NGROK_URL" ]; then
-          echo "🌐 서버가 실행 중입니다!"
-          echo "Public URL: $NGROK_URL"
-          echo "=========================================="
+          echo ""
+          echo "🌐🌐🌐 PUBLIC WEBSITE URL 🌐🌐🌐"
+          echo "  $NGROK_URL"
+          echo ""
+          echo "위 URL로 접속하세요!"
+          echo ""
         else
-          echo "⚠️  서버가 실행 중이지만 외부 접근이 불가능합니다."
-          echo "NGROK_AUTH_TOKEN을 설정하면 외부 URL을 받을 수 있습니다."
-          echo "=========================================="
+          echo ""
+          echo "⚠️  외부 접근 URL이 없습니다."
+          echo "NGROK_AUTH_TOKEN이 설정되어 있는지 확인하세요."
+          echo ""
+          echo "내부 접근: http://localhost:8888"
+          echo ""
         fi
-        echo "서버는 1시간 동안 실행되거나 워크플로우를 취소할 때까지 계속됩니다."
-        echo "URL은 위의 'Create ngrok tunnel' 단계에서 확인할 수 있습니다."
+        echo "=========================================="
+        echo "서버는 최대 1시간 동안 실행됩니다."
+        echo "워크플로우를 취소하면 즉시 종료됩니다."
+        echo "=========================================="
+        echo ""
+        echo "ngrok URL을 확인하려면 위의 'Setup and start ngrok tunnel' 단계를 확인하세요."
+        echo ""
         sleep 3600
     
     - name: Stop server
