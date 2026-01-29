@@ -58,8 +58,28 @@ jobs:
       if: github.event_name == 'workflow_dispatch'
     
     - name: Create ngrok tunnel
-      if: github.event_name == 'workflow_dispatch' && secrets.NGROK_AUTH_TOKEN != ''
+      if: github.event_name == 'workflow_dispatch'
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
       run: |
+        if [ -z "$NGROK_AUTH_TOKEN" ]; then
+          echo "=========================================="
+          echo "⚠️  NGROK_AUTH_TOKEN이 설정되지 않았습니다."
+          echo "=========================================="
+          echo "외부 접근을 위해서는 ngrok 토큰이 필요합니다."
+          echo ""
+          echo "설정 방법:"
+          echo "1. https://ngrok.com 에서 가입"
+          echo "2. Dashboard > Your Authtoken 복사"
+          echo "3. GitHub > Settings > Secrets > Actions"
+          echo "4. NGROK_AUTH_TOKEN 추가"
+          echo ""
+          echo "현재 서버는 내부에서만 접근 가능합니다:"
+          echo "http://localhost:8888"
+          echo "=========================================="
+          exit 0
+        fi
+        
         echo "Starting ngrok tunnel..."
         ngrok http 8888 --log=stdout > ngrok.log 2>&1 &
         NGROK_PID=$!
@@ -87,24 +107,6 @@ jobs:
           echo "Failed to get ngrok URL. Check ngrok.log:"
           cat ngrok.log || echo "No ngrok.log found"
         fi
-    
-    - name: Show local URL (if ngrok not available)
-      if: github.event_name == 'workflow_dispatch' && (secrets.NGROK_AUTH_TOKEN == '' || env.NGROK_URL == '')
-      run: |
-        echo "=========================================="
-        echo "⚠️  NGROK_AUTH_TOKEN이 설정되지 않았습니다."
-        echo "=========================================="
-        echo "외부 접근을 위해서는 ngrok 토큰이 필요합니다."
-        echo ""
-        echo "설정 방법:"
-        echo "1. https://ngrok.com 에서 가입"
-        echo "2. Dashboard > Your Authtoken 복사"
-        echo "3. GitHub > Settings > Secrets > Actions"
-        echo "4. NGROK_AUTH_TOKEN 추가"
-        echo ""
-        echo "현재 서버는 내부에서만 접근 가능합니다:"
-        echo "http://localhost:8888"
-        echo "=========================================="
     
     - name: Test website endpoints
       run: |
