@@ -50,6 +50,62 @@ jobs:
         sleep 10
         echo "Server started"
     
+    - name: Setup ngrok
+      uses: ngrok/setup-ngrok@v3
+      with:
+        ngrok-version: '3'
+        ngrok-auth-token: ${{ secrets.NGROK_AUTH_TOKEN }}
+      if: github.event_name == 'workflow_dispatch'
+    
+    - name: Create ngrok tunnel
+      if: github.event_name == 'workflow_dispatch' && secrets.NGROK_AUTH_TOKEN != ''
+      run: |
+        echo "Starting ngrok tunnel..."
+        ngrok http 8888 --log=stdout > ngrok.log 2>&1 &
+        NGROK_PID=$!
+        echo "ngrok PID: $NGROK_PID"
+        sleep 8
+        
+        # ngrok API에서 URL 가져오기
+        for i in {1..10}; do
+          NGROK_URL=$(curl -s http://localhost:4040/api/tunnels 2>/dev/null | grep -o '"public_url":"https://[^"]*"' | head -1 | cut -d'"' -f4)
+          if [ -n "$NGROK_URL" ]; then
+            break
+          fi
+          echo "Waiting for ngrok... ($i/10)"
+          sleep 2
+        done
+        
+        if [ -n "$NGROK_URL" ]; then
+          echo "=========================================="
+          echo "🌐 PUBLIC WEBSITE URL: $NGROK_URL"
+          echo "=========================================="
+          echo "NGROK_URL=$NGROK_URL" >> $GITHUB_ENV
+          echo "::notice title=🌐 Website URL::Access your website at: $NGROK_URL"
+          echo "::warning title=Website URL::Public URL: $NGROK_URL"
+        else
+          echo "Failed to get ngrok URL. Check ngrok.log:"
+          cat ngrok.log || echo "No ngrok.log found"
+        fi
+    
+    - name: Show local URL (if ngrok not available)
+      if: github.event_name == 'workflow_dispatch' && (secrets.NGROK_AUTH_TOKEN == '' || env.NGROK_URL == '')
+      run: |
+        echo "=========================================="
+        echo "⚠️  NGROK_AUTH_TOKEN이 설정되지 않았습니다."
+        echo "=========================================="
+        echo "외부 접근을 위해서는 ngrok 토큰이 필요합니다."
+        echo ""
+        echo "설정 방법:"
+        echo "1. https://ngrok.com 에서 가입"
+        echo "2. Dashboard > Your Authtoken 복사"
+        echo "3. GitHub > Settings > Secrets > Actions"
+        echo "4. NGROK_AUTH_TOKEN 추가"
+        echo ""
+        echo "현재 서버는 내부에서만 접근 가능합니다:"
+        echo "http://localhost:8888"
+        echo "=========================================="
+    
     - name: Test website endpoints
       run: |
         echo "=== Testing Website Endpoints ==="
@@ -65,6 +121,21 @@ jobs:
         # 서버 로그 확인
         echo -e "\n3. Server logs:"
         tail -20 service/server.log || echo "No server log found"
+        
+        # ngrok URL 표시 (수동 실행 시)
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          if [ -n "$NGROK_URL" ]; then
+            echo ""
+            echo "=========================================="
+            echo "🌐 PUBLIC WEBSITE URL: $NGROK_URL"
+            echo "=========================================="
+            echo "브라우저에서 위 URL로 접속하세요!"
+          else
+            echo ""
+            echo "⚠️  ngrok URL을 찾을 수 없습니다."
+            echo "NGROK_AUTH_TOKEN이 설정되어 있는지 확인하세요."
+          fi
+        fi
     
     - name: Upload server logs
       if: always()
@@ -74,9 +145,29 @@ jobs:
         path: service/server.log
         retention-days: 1
     
+    - name: Keep server running (manual mode)
+      if: github.event_name == 'workflow_dispatch'
+      env:
+        NGROK_URL: ${{ env.NGROK_URL }}
+      run: |
+        echo "=========================================="
+        if [ -n "$NGROK_URL" ]; then
+          echo "🌐 서버가 실행 중입니다!"
+          echo "Public URL: $NGROK_URL"
+          echo "=========================================="
+        else
+          echo "⚠️  서버가 실행 중이지만 외부 접근이 불가능합니다."
+          echo "NGROK_AUTH_TOKEN을 설정하면 외부 URL을 받을 수 있습니다."
+          echo "=========================================="
+        fi
+        echo "서버는 1시간 동안 실행되거나 워크플로우를 취소할 때까지 계속됩니다."
+        echo "URL은 위의 'Create ngrok tunnel' 단계에서 확인할 수 있습니다."
+        sleep 3600
+    
     - name: Stop server
       if: always()
       run: |
+        pkill -f ngrok || true
         if [ -f service/server.pid ]; then
           kill $(cat service/server.pid) || true
           echo "Server stopped"
