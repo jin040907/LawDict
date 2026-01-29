@@ -58,7 +58,9 @@ app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), na
 
 # DB 연결 설정
 # 환경 변수에서 가져오고, 없으면 기본값 사용 (로컬호스트)
-DB_URL = os.getenv("DB_URL", "postgresql://cginside19:1234@localhost:5432/bill_db")
+DB_URL = os.getenv("DB_URL")
+if not DB_URL:
+    raise RuntimeError("환경변수 DB_URL이 없습니다. service/.env에 설정하세요.")
 
 engine = create_engine(DB_URL)
 
