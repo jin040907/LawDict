@@ -50,14 +50,7 @@ jobs:
         sleep 10
         echo "Server started"
     
-    - name: Setup ngrok
-      uses: ngrok/setup-ngrok@v3
-      with:
-        ngrok-version: '3'
-        ngrok-auth-token: ${{ secrets.NGROK_AUTH_TOKEN }}
-      if: github.event_name == 'workflow_dispatch'
-    
-    - name: Create ngrok tunnel
+    - name: Setup and start ngrok tunnel
       if: github.event_name == 'workflow_dispatch'
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
@@ -79,6 +72,15 @@ jobs:
           echo "=========================================="
           exit 0
         fi
+        
+        echo "Downloading ngrok..."
+        wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
+        tar xzf ngrok-v3-stable-linux-amd64.tgz
+        chmod +x ngrok
+        sudo mv ngrok /usr/local/bin/
+        
+        echo "Configuring ngrok with auth token..."
+        ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
         
         echo "Starting ngrok tunnel..."
         ngrok http 8888 --log=stdout > ngrok.log 2>&1 &
