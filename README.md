@@ -245,7 +245,7 @@ export DB_URL=postgresql://username:password@localhost:5432/bill_db
 postgresql://[사용자명]:[비밀번호]@[호스트]:[포트]/[데이터베이스명]
 ```
 
-**참고:** `DB_URL`이 설정되지 않으면 기본값(`postgresql://cginside19:1234@localhost:5432/bill_db`)이 사용됩니다.
+**참고:** `DB_URL`이 설정되지 않으면 기본값(`postgresql://username:password@localhost:5432/bill_db`)이 사용됩니다. 실제 값은 `service/.env`에 설정하세요.
 
 #### 5.3 테이블 생성
 
@@ -759,7 +759,7 @@ CREATE INDEX idx_propose_dt ON public.final_training_data_copy_sample10_md(propo
 | ------------------------ | ---- | ----------------------------------------------- | --------------------------------------- |
 | `OPENAI_API_KEY`       | ✅   | -                                               | OpenAI API 키                           |
 | `OPENAI_MODEL_PRIMARY` | ❌   | `gpt-4o-mini`                                 | 사용할 OpenAI 모델                      |
-| `DB_URL`               | ❌   | `postgresql://cginside19:1234@localhost:5432/bill_db` | PostgreSQL 데이터베이스 연결 문자열 |
+| `DB_URL`               | ❌   | `postgresql://username:password@localhost:5432/bill_db` | PostgreSQL 데이터베이스 연결 문자열 |
 
 ### 성능 최적화
 
