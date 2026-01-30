@@ -111,12 +111,12 @@
                                 id="sortSelect" 
                                 class="appearance-none bg-white border border-gray-300 rounded-xl px-4 py-2.5 pr-10 text-sm md:text-base text-gray-700 font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all cursor-pointer hover:border-blue-400 min-w-[140px]"
                             >
-                                <option value="date-desc">최신순</option>
-                                <option value="date-asc">오래된순</option>
-                                <option value="name-asc">법안명순 (가나다)</option>
-                                <option value="name-desc">법안명순 (역순)</option>
-                                <option value="proposer-asc">발의자순 (가나다)</option>
-                                <option value="proposer-desc">발의자순 (역순)</option>
+                                <option value="date-desc" {% if current_sort == 'date-desc' %}selected{% endif %}>최신순</option>
+                                <option value="date-asc" {% if current_sort == 'date-asc' %}selected{% endif %}>오래된순</option>
+                                <option value="name-asc" {% if current_sort == 'name-asc' %}selected{% endif %}>법안명순 (가나다)</option>
+                                <option value="name-desc" {% if current_sort == 'name-desc' %}selected{% endif %}>법안명순 (역순)</option>
+                                <option value="proposer-asc" {% if current_sort == 'proposer-asc' %}selected{% endif %}>발의자순 (가나다)</option>
+                                <option value="proposer-desc" {% if current_sort == 'proposer-desc' %}selected{% endif %}>발의자순 (역순)</option>
                             </select>
                             <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +228,7 @@
                     </thead>
                     <tbody id="billTableBody" class="divide-y divide-gray-100">
                         {% for bill in latest_bills %}
-                        <tr class="bill-row table-row-hover bg-white hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-sky-50/50" data-bill-name="{{ bill.bill_name|lower }}" data-proposer-name="{{ bill.proposer_name|lower }}" data-propose-dt="{{ bill.propose_dt_str|default('') }}" data-bill-id="{{ bill.bill_id }}">
+                        <tr class="bill-row table-row-hover bg-white hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-sky-50/50" data-bill-name="{{ bill.bill_name|lower }}" data-proposer-name="{{ bill.proposer_name|lower }}" data-propose-dt="{{ bill.propose_dt_str|default('') }}" data-propose-dt-sort="{{ bill.propose_dt_sort|default(0) }}" data-bill-id="{{ bill.bill_id }}">
                             <td class="px-6 md:px-8 py-3">
                                 <div class="font-semibold text-gray-900 text-base md:text-lg group-hover:text-blue-800 transition-colors bill-name-hover cursor-pointer relative" 
                                      data-bill-name="{{ bill.bill_name }}"
@@ -272,7 +272,7 @@
                     
                     <div class="flex items-center gap-2">
                         {% if current_page > 1 %}
-                        <a href="/?page={{ current_page - 1 }}" class="pagination-btn p-2.5 text-gray-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all">
+                        <a href="/?page={{ current_page - 1 }}&sort={{ current_sort }}" class="pagination-btn p-2.5 text-gray-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
                             </svg>
@@ -284,7 +284,7 @@
                         {% if end_page > total_pages %}{% set end_page = total_pages %}{% endif %}
 
                         {% for p in range(start_page, end_page + 1) %}
-                        <a href="/?page={{ p }}" 
+                        <a href="/?page={{ p }}&sort={{ current_sort }}" 
                            class="pagination-btn w-11 h-11 flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-200
                            {% if p == current_page %}
                            bg-gradient-to-br from-blue-700 to-blue-800 text-white shadow-lg transform scale-110
@@ -296,7 +296,7 @@
                         {% endfor %}
 
                         {% if current_page < total_pages %}
-                        <a href="/?page={{ current_page + 1 }}" class="pagination-btn p-2.5 text-gray-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all">
+                        <a href="/?page={{ current_page + 1 }}&sort={{ current_sort }}" class="pagination-btn p-2.5 text-gray-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                             </svg>
@@ -567,6 +567,7 @@
                         row.setAttribute('data-bill-name', (bill.bill_name || '').toLowerCase());
                         row.setAttribute('data-proposer-name', (bill.proposer_name || '').toLowerCase());
                         row.setAttribute('data-propose-dt', bill.propose_dt_str || '');
+                        row.setAttribute('data-propose-dt-sort', String(bill.propose_dt_sort != null ? bill.propose_dt_sort : 0));
                         row.setAttribute('data-bill-id', billId);
                         
                         row.innerHTML = `
@@ -839,28 +840,47 @@
         const sortSelect = document.getElementById('sortSelect');
         const tbody = document.getElementById('billTableBody');
 
+        function getSortDateNum(row) {
+            var sortAttr = row.getAttribute('data-propose-dt-sort');
+            if (sortAttr !== null && sortAttr !== '') {
+                var n = parseInt(sortAttr, 10);
+                if (!isNaN(n)) return n;
+            }
+            var dt = (row.getAttribute('data-propose-dt') || '').trim();
+            if (!dt || dt === '정보 없음') return 0;
+            var m = dt.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (m) {
+                var y = parseInt(m[1], 10);
+                var mo = parseInt(m[2], 10);
+                var d = parseInt(m[3], 10);
+                if (y >= 1900 && y <= 2100 && mo >= 1 && mo <= 12 && d >= 1 && d <= 31) {
+                    return y * 10000 + mo * 100 + d;
+                }
+            }
+            return 0;
+        }
+
         function sortBills() {
-            const sortValue = sortSelect.value;
-            const rows = Array.from(document.querySelectorAll('.bill-row'));
-            const noResultsRow = document.getElementById('noResultsRow');
+            var sortValue = sortSelect.value;
+            if (!tbody) return;
+            var rows = Array.from(tbody.querySelectorAll('tr.bill-row'));
+            var noResultsRow = document.getElementById('noResultsRow');
             
-            // 검색 결과 없음 행 제거 (정렬 후 다시 추가될 수 있음)
             if (noResultsRow) {
                 noResultsRow.remove();
             }
+            if (rows.length === 0) return;
 
-            // 정렬 로직
-            rows.sort((a, b) => {
+            var SORT_NO_DATE = 99991231;
+            rows.sort(function(a, b) {
                 if (sortValue === 'date-desc') {
-                    // 최신순 (발의일 내림차순)
-                    const dateA = a.getAttribute('data-propose-dt') || '';
-                    const dateB = b.getAttribute('data-propose-dt') || '';
-                    return dateB.localeCompare(dateA);
+                    var dateA = getSortDateNum(a) || SORT_NO_DATE;
+                    var dateB = getSortDateNum(b) || SORT_NO_DATE;
+                    return dateB - dateA;
                 } else if (sortValue === 'date-asc') {
-                    // 오래된순 (발의일 오름차순)
-                    const dateA = a.getAttribute('data-propose-dt') || '';
-                    const dateB = b.getAttribute('data-propose-dt') || '';
-                    return dateA.localeCompare(dateB);
+                    var dateA = getSortDateNum(a) || SORT_NO_DATE;
+                    var dateB = getSortDateNum(b) || SORT_NO_DATE;
+                    return dateA - dateB;
                 } else if (sortValue === 'name-asc') {
                     // 이름순 (가나다)
                     const nameA = a.getAttribute('data-bill-name') || '';
@@ -885,16 +905,15 @@
                 return 0;
             });
 
-            // 정렬된 행을 테이블에 다시 추가
             rows.forEach(row => {
                 tbody.appendChild(row);
             });
-
-            // 검색 필터 재적용
-            filterBills();
         }
 
-        sortSelect.addEventListener('change', sortBills);
+        sortSelect.addEventListener('change', function() {
+            var sortValue = sortSelect.value;
+            window.location.href = '/?sort=' + encodeURIComponent(sortValue) + '&page=1';
+        });
 
         // 빠른 미리보기 모달 기능
         const previewModal = document.getElementById('billPreviewModal');

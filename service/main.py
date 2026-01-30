@@ -1214,28 +1214,31 @@ async def search_bills(
                 pd_val = b.get("propose_dt")
                 if pd_val is not None:
                     try:
-                        # Timestamp를 문자열로 변환
                         if hasattr(pd_val, "strftime"):
                             date_str = pd_val.strftime("%Y-%m-%d")
+                            b["propose_dt_sort"] = int(pd_val.strftime("%Y%m%d"))
                         elif hasattr(pd_val, "isoformat"):
                             date_str = pd_val.isoformat()[:10]
+                            b["propose_dt_sort"] = int(pd_val.isoformat()[:10].replace("-", "")) if len(pd_val.isoformat()) >= 10 else 0
                         else:
                             str_val = str(pd_val)
                             if len(str_val) >= 10:
                                 date_str = str_val[:10]
+                                b["propose_dt_sort"] = int(str_val[:10].replace("-", ""))
                             else:
                                 date_str = ""
-                        
+                                b["propose_dt_sort"] = 0
                         b["propose_dt_str"] = date_str
-                        # 원본 Timestamp 객체를 문자열로 교체 (JSON 직렬화를 위해)
                         b["propose_dt"] = date_str
                     except Exception as e:
                         print(f"Error formatting propose_dt: {e}", file=sys.stderr, flush=True)
                         b["propose_dt_str"] = ""
                         b["propose_dt"] = ""
+                        b["propose_dt_sort"] = 0
                 else:
                     b["propose_dt_str"] = ""
                     b["propose_dt"] = ""
+                    b["propose_dt_sort"] = 0
             
             response_data = {"results": results, "count": len(results)}
             print(f"[DEBUG] Returning response: count={len(results)}", file=sys.stderr, flush=True)
@@ -1249,15 +1252,28 @@ async def search_bills(
         return JSONResponse({"results": [], "count": 0})
 
 
+SORT_OPTIONS = ("date-desc", "date-asc", "name-asc", "name-desc", "proposer-asc", "proposer-desc")
+ORDER_CLAUSES = {
+    "date-desc": "ORDER BY propose_dt DESC NULLS LAST, bill_id DESC",
+    "date-asc": "ORDER BY propose_dt ASC NULLS LAST, bill_id ASC",
+    "name-asc": "ORDER BY bill_name ASC, bill_id ASC",
+    "name-desc": "ORDER BY bill_name DESC, bill_id DESC",
+    "proposer-asc": "ORDER BY proposer_name ASC, bill_id ASC",
+    "proposer-desc": "ORDER BY proposer_name DESC, bill_id DESC",
+}
+
+
 @app.get("/")
 
-async def main_page(request: Request, page: int = 1):
+async def main_page(request: Request, page: int = 1, sort: str = Query("date-desc", description="정렬")):
 
     limit = 10
 
     offset = (page - 1) * limit
 
-   
+    if sort not in SORT_OPTIONS:
+        sort = "date-desc"
+    order_clause = ORDER_CLAUSES[sort]
 
     try:
         with engine.connect() as conn:
@@ -1277,22 +1293,16 @@ async def main_page(request: Request, page: int = 1):
             available_months = list(range(1, 13))          # 1~12
             available_days = list(range(1, 32))            # 1~31
 
-            # 목록 조회 (SQL 인젝션 방지를 위해 text() 사용)
+            # 목록 조회 (정렬 기준 적용, SQL 인젝션 방지)
             if total_count == 0:
-                # 테이블이 없거나 데이터가 없으면 빈 결과 반환
                 latest_bills = []
             else:
                 try:
                     query = text("""
-
                         SELECT bill_id, bill_name, proposer_name, propose_dt
-
                         FROM public.final_training_data_copy_sample10_md
-
-                        ORDER BY propose_dt DESC, bill_id DESC
-
+                        """ + order_clause + """
                         LIMIT :limit OFFSET :offset
-
                     """)
 
                     latest_bills = pd.read_sql(query, conn, params={"limit": limit, "offset": offset}).to_dict(orient="records")
@@ -1309,19 +1319,25 @@ async def main_page(request: Request, page: int = 1):
                 try:
                     if hasattr(pd_val, "strftime"):
                         b["propose_dt_str"] = pd_val.strftime("%Y-%m-%d")
+                        b["propose_dt_sort"] = int(pd_val.strftime("%Y%m%d"))
                     elif hasattr(pd_val, "isoformat"):
                         b["propose_dt_str"] = pd_val.isoformat()[:10]
+                        b["propose_dt_sort"] = int(pd_val.isoformat()[:10].replace("-", "")) if len(pd_val.isoformat()) >= 10 else 0
                     else:
                         str_val = str(pd_val)
                         if len(str_val) >= 10:
                             b["propose_dt_str"] = str_val[:10]
+                            b["propose_dt_sort"] = int(str_val[:10].replace("-", ""))
                         else:
                             b["propose_dt_str"] = ""
+                            b["propose_dt_sort"] = 0
                 except Exception as e:
                     print(f"Error formatting propose_dt: {e}, value: {pd_val}, type: {type(pd_val)}")
                     b["propose_dt_str"] = ""
+                    b["propose_dt_sort"] = 0
             else:
                 b["propose_dt_str"] = ""
+                b["propose_dt_sort"] = 0
 
         return templates.TemplateResponse("index.html", {
 
@@ -1332,6 +1348,8 @@ async def main_page(request: Request, page: int = 1):
             "current_page": page,
 
             "total_pages": total_pages,
+
+            "current_sort": sort,
 
             "available_years": available_years,
 
@@ -1348,6 +1366,7 @@ async def main_page(request: Request, page: int = 1):
             "latest_bills": [],
             "current_page": 1,
             "total_pages": 0,
+            "current_sort": "date-desc",
             "available_years": list(range(2026, 2007, -1)),
             "available_months": list(range(1, 13)),
             "available_days": list(range(1, 32)),
